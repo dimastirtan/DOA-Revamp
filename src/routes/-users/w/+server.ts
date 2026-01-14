@@ -64,15 +64,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 					if (registerInfo) {
 						const transporter = nodemailer.createTransport({
-							service: 'gmail',
-							auth: {
-								user: 'jaminankelaikan@gmail.com',
-								pass: 'ejgz qqhd bhhc ouum'
+							host: '10.1.0.6',
+							port: 25,
+							secure: false,
+							tls: {
+								rejectUnauthorized: false
 							}
 						});
 
 						await transporter.sendMail({
-							from: 'jaminankelaikan@gmail.com',
+							from: 'noreply@indonesian-aerospace.com',
 							to: [registerInfo.email],
 							subject: 'Akun Teraktivasi - PTDI Design Organization',
 							html: `
@@ -97,11 +98,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				nik: yup.string().required(),
 				org: yup.string().required(),
 				org_lokasi: yup.string().required(),
-				email: yup.string().required().email(),
+				email: yup.string().required().email().matches(/@indonesian-aerospace\.com$/, 'Email must be @indonesian-aerospace.com'),
 				password: yup.string().required(),
 				mgr_nama: yup.string().required(),
 				mgr_nik: yup.string().required(),
-				mgr_email: yup.string().required().email()
+				mgr_email: yup.string().required().email().matches(/@indonesian-aerospace\.com$/, 'Email must be @indonesian-aerospace.com')
 			});
 
 			await schema.validate(data.r);
@@ -188,15 +189,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			// fs.unlinkSync('pdf/' + data.r.nik + '.docx');
 
 			const transporter = nodemailer.createTransport({
-				service: 'gmail',
-				auth: {
-					user: 'jaminankelaikan@gmail.com',
-					pass: 'ejgz qqhd bhhc ouum'
+				host: '10.1.0.6',
+				port: 25,
+				secure: false,
+				tls: {
+					rejectUnauthorized: false
 				}
 			});
 
 			await transporter.sendMail({
-				from: 'jaminankelaikan@gmail.com',
+				from: 'noreply@indonesian-aerospace.com',
 				to: [data.r.mgr_email, 'das@indonesian-aerospace.com'],
 				subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik,
 				attachments: [
@@ -208,7 +210,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			});
 
 			await transporter.sendMail({
-				from: 'jaminankelaikan@gmail.com',
+				from: 'noreply@indonesian-aerospace.com',
 				to: [data.r.email],
 				subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + ' - PTDI Design Organization',
 				html: `

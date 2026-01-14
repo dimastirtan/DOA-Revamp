@@ -1,6 +1,8 @@
 # DOA Document Storage Logic
 
-This document describes the filesystem structure and storage logic for documents in the DOA system, based on an analysis of the database content (`standard.sql`) and system routes.
+This document describes the filesystem structure and storage logic for 
+documents in the DOA system, based on an analysis of the database 
+content (`standard.sql`) and system routes.
 
 ## Base Directory
 The root for all documents is the `WES/` directory.
