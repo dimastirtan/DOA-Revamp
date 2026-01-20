@@ -20,7 +20,7 @@
 		const checkSession = async () => {
 			try {
 				const res = await fetch('/-login', {
-					headers: { 'Accept': 'application/json' }
+					headers: { Accept: 'application/json' }
 				});
 				if (res.status === 401) {
 					console.log('Session expired, refreshing...');
@@ -50,6 +50,15 @@
 			clearInterval(interval);
 			window.removeEventListener('focus', handleFocus);
 		};
+	});
+
+	onMount(() => {
+		if (browser && 'serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/service-worker.js', {
+				type: 'classic',
+				scope: '/'
+			});
+		}
 	});
 </script>
 
