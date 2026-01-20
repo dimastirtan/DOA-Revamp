@@ -21,7 +21,7 @@ const config = {
 			register: false
 		},
 		output: {
-			bundleStrategy: 'single'
+			bundleStrategy: 'split'
 		}
 	},
 
