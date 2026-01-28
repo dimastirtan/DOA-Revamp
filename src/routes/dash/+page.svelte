@@ -535,6 +535,28 @@
 		<img src="down.svg" class="w-2 pt-1" alt="" />
 	</div>
 -->
+		{#if roleEditDoa}
+		<div
+			class="flex flex-row bg-secondary/85  p-2 px-4 gap-2 group"
+			onclick={() => {
+				anyar = true;
+				selectedDoa = {
+					no: '',
+					type: '',
+					number: '',
+					revision: '',
+					date: '',
+					date2: '',
+					title: ''
+				};
+				$mainTitle = 'Tambah DOA';
+				mbukakTambahDoa = true;
+			}}
+		>
+			<img src="plus-white.svg" class="w-3 group-hover:rotate-[180deg] transition-all duration-1000" alt="" />
+			<p class="text-white!">Tambah</p>
+		</div>
+	{/if}
 	<Select.Root type="single" bind:value>
 		<Select.Trigger class="flex! flex-row! bg-[#fef8f0]! py-5! px-3! w-48! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
 			<!-- {triggerContent} -->
@@ -582,28 +604,6 @@
 			</Select.Group>
 		</Select.Content>
 	</Select.Root>
-	{#if roleEditDoa}
-		<div
-			class="flex flex-row bg-[#fef8f0] p-2 px-3 gap-2 group"
-			onclick={() => {
-				anyar = true;
-				selectedDoa = {
-					no: '',
-					type: '',
-					number: '',
-					revision: '',
-					date: '',
-					date2: '',
-					title: ''
-				};
-				$mainTitle = 'Tambah DOA';
-				mbukakTambahDoa = true;
-			}}
-		>
-			<img src="plus.svg" class="w-4 group-hover:rotate-[180deg] transition-all duration-1000" alt="" />
-			<p class="">Tambah</p>
-		</div>
-	{/if}
 	{#if roleUser}
 		<div
 			class="flex flex-row bg-[#fef8f0] p-2 px-3 gap-2 group aspect-squre"
@@ -820,6 +820,28 @@
 				</div>
 
 				<div class="flex gap-2">
+					<div
+						onclick={() => {
+							anyar = true;
+							selectedDoa = {
+								no: '',
+								type: '',
+								number: '',
+								revision: '',
+								date: '',
+								date2: '',
+								title: ''
+							};
+							$mainTitle = 'Tambah DOA';
+							mbukakTambahDoa = true;
+						}}
+						class={roleEditDoa ? '' : 'hidden'}
+					>
+						<div class="flex flex-row bg-secondary p-2 gap-2 px-4 group">
+							<img src="plus-white.svg" class="w-3 group-hover:rotate-[180deg] transition-all duration-1000" alt="" />
+							<p class="text-white!">Tambah</p>
+						</div>
+					</div>
 					<div>
 						<div class="flex flex-row bg-[#F3EBE0] items-center group">
 							<div class="bg-secondary p-2 px-3">
@@ -840,28 +862,6 @@
 							<Input type="text" ref={searchRef} placeholder="Cari..." class="search w-full rounded-none bg-primary border-transparent! placeholder:text-secondary/35 h-full pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
 						</div>
 					</div>
-					<div
-						onclick={() => {
-							anyar = true;
-							selectedDoa = {
-								no: '',
-								type: '',
-								number: '',
-								revision: '',
-								date: '',
-								date2: '',
-								title: ''
-							};
-							$mainTitle = 'Tambah DOA';
-							mbukakTambahDoa = true;
-						}}
-						class={roleEditDoa ? '' : 'hidden'}
-					>
-						<div class="flex flex-row bg-[#F3EBE0] p-3.5 group">
-							<img src="plus.svg" class="w-3 group-hover:rotate-[180deg] transition-all duration-1000" alt="" />
-						</div>
-					</div>
-
 					<div
 						class="flex gap-2"
 						onclick={() => {
