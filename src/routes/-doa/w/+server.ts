@@ -94,6 +94,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			revision: entry.revision,
 			title: entry.title,
 			nmpath: nmpath,
+			remark: 'Active',
 			pdf: pdf
 		};
 
