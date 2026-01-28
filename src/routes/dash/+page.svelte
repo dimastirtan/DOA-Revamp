@@ -393,6 +393,7 @@
 				} else if (mbukakSearch) {
 					fDoas(searchDoa, '');
 				}
+				tos('exclamation.svg', 'Berhasil', 'DOA kamu sukses masuk ke database.');
 			} else {
 				loadingInput = false;
 				const res = await response.json();
