@@ -732,7 +732,7 @@
 
 		<!-- @b top bar -->
 		<div class="flex flex-row w-1/2 gap-2 justify-end">
-			<div class="w-fit bg-white/75 p-4 px-6 border-2 border-[#213C51]">
+			<div class="w-fit bg-white/75 p-4 px-6 border-2 border-transparent">
 				<div class="flex gap-1.5">
 					<img src="user.svg" class="w-4" alt="" />
 					<p class="text-secondary opacity-75">User</p>
@@ -745,14 +745,14 @@
 					{/if}
 				</p>
 			</div>
-			<div class="w-fit bg-white/75 p-4 px-6 border-2 border-[#213C51]">
+			<div class="w-fit bg-white/75 p-4 px-6 border-2 border-transparent">
 				<div class="flex gap-1.5">
 					<img src="date.svg?f" class="w-5 opacity-75" alt="" />
 					<p class="text-secondary opacity-75">Tanggal</p>
 				</div>
 				<p class="font-medium text-lg whitespace-nowrap overflow-hidden text-ellipsis">{formattedDate}</p>
 			</div>
-			<div class="w-fit min-w-44 bg-white/75 p-4 px-6 border-2 border-[#213C51]">
+			<div class="w-fit min-w-44 bg-white/75 p-4 px-6 border-2 border-transparent">
 				<div class="flex gap-1.5">
 					<img src="clock.svg?f" class="w-4" alt="" />
 					<p class="text-secondary opacity-75">Jam</p>
@@ -1118,13 +1118,13 @@
 			fileInputDoa = null;
 		}}
 	>
-		<Drawer.Content class="bg-[#FAF8F4]! min-h-0!">
+		<Drawer.Content class="bg-[#fff]! min-h-0!">
 			<ScrollArea scrollbarYClasses="hidden" class="el relative! flex! items-center! px-4! gap-2! h-full! min-h-0! flex-col!" orientation="vertical" type="scroll" data-vaul-no-drag>
 				<div class="w-full flex justify-between pt-4">
 					<div>
-						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
-							<img src="plus.svg?f" class="w-4" alt="" />
-							<p class="font-medium">Tambah DOA</p>
+						<div class="flex flex-row bg-[#213C51] p-2 px-3 gap-2 group">
+							<img src="plus-white.svg?f" class="w-4" alt="" />
+							<p class="font-medium text-white!">Tambah DOA</p>
 						</div>
 					</div>
 
@@ -1153,8 +1153,8 @@
 						}}
 					>
 						<div>
-							<div class="flex flex-row bg-[#677787] p-3.5 group">
-								<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
+							<div class="flex flex-row bg-[#213C51] p-3.5 group">
+								<img src="minimize-white.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 							</div>
 						</div>
 					</div>
@@ -1165,7 +1165,7 @@
 						<p class="font-medium">Judul</p>
 						<div class="relative w-full items-center">
 							<img src="document.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-							<Input type="text" placeholder="Masukkan Judul" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedDoa.title} />
+							<Input type="text" placeholder="Masukkan Judul" class="w-full rounded-none bg-[#fff] border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedDoa.title} />
 						</div>
 					</div>
 
@@ -1173,7 +1173,7 @@
 						<p class="font-medium">Nomor</p>
 						<div class="relative w-full items-center">
 							<img src="number.svg?b" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-							<Input type="text" placeholder="Nomor" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedDoa.number} />
+							<Input type="text" placeholder="Nomor" class="w-full rounded-none bg-[#fff] border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedDoa.number} />
 						</div>
 					</div>
 
@@ -1181,30 +1181,30 @@
 						<p class="font-medium">Revisi</p>
 						<div class="relative w-full items-center">
 							<img src="beat.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
-							<Input type="text" placeholder="Revisi" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedDoa.revision} />
+							<Input type="text" placeholder="Revisi" class="w-full rounded-none bg-[#fff] border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedDoa.revision} />
 						</div>
 					</div>
 
 					<div class="flex flex-col gap-1">
 						<p class="font-medium">Dokumen</p>
-						<div class="relative w-full items-center w-full! rounded-none! bg-primary/50! flex! items-center! border-transparent! placeholder:text-secondary/35 py-2.5! pl-8! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0">
+						<div class="relative w-full items-center w-full! rounded-none! border-1! bg-[#fff]! flex! items-center! border-[#000]! placeholder:text-secondary/35 py-2.5! pl-8! text-base! focus:!border-[#000]! shadow-none! focus:!ring-transparent focus:!ring-offset-0">
 							<img src="clip.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
-							<Input accept=".doc,.docx,.pdf" type="file" placeholder="Upload Dokumen" class="border-0! rounded-0! focus:!border-transparent shadow-none! focus:!ring-transparent pt-2 focus:!ring-offset-0" autofocus={false} bind:files={fileInputDoa} />
+							<Input accept=".doc,.docx,.pdf" type="file" placeholder="Upload Dokumen" class="border-0! rounded-0! border-[#000]! shadow-none! focus:!ring-transparent pt-2 focus:!ring-offset-0" autofocus={false} bind:files={fileInputDoa} />
 						</div>
 					</div>
 
 					<div class="flex flex-col gap-3">
 						<p class="font-medium">Tanggal</p>
 						<Popover.Root bind:open={openTanggal}>
-							<Popover.Trigger id="{id}-date" class="relative w-full items-center w-full! rounded-none! bg-primary/50! flex! items-center! border-transparent! placeholder:text-secondary/35 py-4! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0">
+							<Popover.Trigger id="{id}-date" class="border-1! border-[#000]! relative w-full items-center w-full! rounded-none! bg-[#fff]! flex! items-center! placeholder:text-secondary/35 py-4! pl-11! text-base! shadow-none! focus:!ring-transparent focus:!ring-offset-0">
 								{#snippet child({ props })}
 									<div {...props}>
 										<img src="date.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-										<div class="border-0! rounded-0! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0 {selectedDoa.date ? '' : 'text-secondary/25!'}">{selectedDoa.date ? selectedDoa.date.toString() : 'Pilih Tanggal'}</div>
+										<div class="border-0! rounded-0! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0 {selectedDoa.date ? '' : 'text-secondary/50!'}">{selectedDoa.date ? selectedDoa.date.toString() : 'Pilih Tanggal'}</div>
 									</div>
 								{/snippet}
 							</Popover.Trigger>
-							<Popover.Content class="mb-3! rounded-none! shadow-none! bg-[#f4efe7]! border-1! border-[#e1d5c5]! p-2!">
+							<Popover.Content class="mb-3! rounded-none! shadow-none! bg-[#fff]! border-1! border-[#000]! p-2!">
 								<Calendar
 									type="single"
 									bind:value={selectedDoa.date}
@@ -1221,11 +1221,11 @@
 					<div class="flex flex-col gap-3">
 						<p class="font-medium">Valid</p>
 						<Popover.Root bind:open={openValid}>
-							<Popover.Trigger id="{id}-date" class="relative w-full items-center w-full! rounded-none! bg-primary/50! flex! items-center! border-transparent! placeholder:text-secondary/35 py-4! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0">
+							<Popover.Trigger id="{id}-date" class="border-1! border-[#000]! relative w-full items-center w-full! rounded-none! bg-[#fff]! flex! items-center! placeholder:text-secondary/35 py-4! pl-11! text-base! focus:!border-[#000]! shadow-none! focus:!ring-transparent focus:!ring-offset-0">
 								{#snippet child({ props })}
 									<div {...props}>
 										<img src="date valid.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-										<div class="border-0! rounded-0! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0 {selectedDoa.date2 ? '' : 'text-secondary/25!'}">{selectedDoa.date2 ? selectedDoa.date2.toString() : 'Pilih Tanggal'}</div>
+										<div class="border-0! rounded-0! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0 {selectedDoa.date2 ? '' : 'text-secondary/50!'}">{selectedDoa.date2 ? selectedDoa.date2.toString() : 'Pilih Tanggal'}</div>
 									</div>
 								{/snippet}
 							</Popover.Trigger>
@@ -1247,11 +1247,11 @@
 						<p class="font-medium">Tipe</p>
 						<!-- <div class="relative w-full items-center">
 						<img src="type.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
-						<Input type="text" placeholder="Pilih Tipe" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+						<Input type="text" placeholder="Pilih Tipe" class="w-full rounded-none bg-[#fff] border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 					</div> -->
 
 						<Select.Root type="single" name="favoriteFruit" bind:value={selectedDoa.type}>
-							<Select.Trigger placeholder="Pilih Tipe" class="flex! relative! pl-11! flex-row! bg-primary/50! py-7! px-3! w-full! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
+							<Select.Trigger placeholder="Pilih Tipe" class="flex! relative! pl-11! flex-row! bg-[#fff]! py-7! px-3! w-full! gap-3! group shadow-none! overflow-hidden! border-1! border-[#000]! rounded-none!">
 								<img src="type.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
 								<p title={subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'} class="text-base max-w-[19dvw] truncate {selectedDoa.type === '0' ? 'text-secondary/35!' : 'text-secondary!'}">{subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'}</p>
 								<!-- <img src="down.svg" class="w-2 pt-1" alt="" /> -->
@@ -1352,7 +1352,7 @@
 			$mainTitle = group.find((t) => t.value === value)?.label || '';
 		}}
 	>
-		<Drawer.Content class="bg-[#FAF8F4]! min-h-[95dvh]! flex! items-center!">
+		<Drawer.Content class="bg-[#fff]/95! min-h-[95dvh]! flex! items-center!">
 			<div class="h-screen w-screen z-50 absolute {loadingDrawer ? 'block' : 'hidden'}"><img src="spinner_color.svg?a" class=" h-5! w-5! absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" alt="" /></div>
 			<div class="w-11/12 pt-12 gap-2 flex flex-col">
 				<div class="w-full flex justify-between">
@@ -1527,13 +1527,13 @@
 			$mainTitle = 'Daftar User';
 		}}
 	>
-		<Drawer.Content class="bg-[#FAF8F4]! min-h-0!">
+		<Drawer.Content class="bg-[#fff]! min-h-0!">
 			<ScrollArea scrollbarYClasses="hidden" class="el relative! flex! items-center! px-4! gap-2! h-full! min-h-0! flex-col!" orientation="vertical" type="scroll" data-vaul-no-drag>
 				<div class="w-full flex justify-between pt-4">
 					<div>
-						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
-							<img src="user.svg?f" class="w-4" alt="" />
-							<p class="font-medium">Edit User</p>
+						<div class="flex flex-row bg-[#213C51] p-2 px-3 gap-2 group">
+							<img src="user-white.svg?f" class="w-4" alt="" />
+							<p class="font-medium text-white!">Edit User</p>
 						</div>
 					</div>
 
@@ -1554,8 +1554,8 @@
 						}}
 					>
 						<div>
-							<div class="flex flex-row bg-[#677787] p-3.5 group">
-								<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
+							<div class="flex flex-row bg-[#213C51] p-3.5 group">
+								<img src="minimize-white.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 							</div>
 						</div>
 					</div>
@@ -1566,7 +1566,7 @@
 						<p class="font-medium">NIK</p>
 						<div class="relative w-full items-center">
 							<img src="nik.svg?a" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-							<Input type="text" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedUser.username} disabled />
+							<Input type="text" class="w-full rounded-none bg-primary/50 border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} bind:value={selectedUser.username} disabled />
 						</div>
 					</div>
 
@@ -1574,23 +1574,23 @@
 						<p class="font-medium">Nama</p>
 						<div class="relative w-full items-center">
 							<img src="name.svg?a" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-							<Input type="text" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" bind:value={selectedUser.configPenghasil} autofocus={false} disabled />
+							<Input type="text" class="w-full rounded-none bg-primary/50 border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" bind:value={selectedUser.configPenghasil} autofocus={false} disabled />
 						</div>
 					</div>
 
 					<div class="flex flex-col gap-1">
 						<p class="font-medium">User Level</p>
 						<Select.Root type="single" name="favoriteFruit" bind:value={selectedUser.userlevel}>
-							<Select.Trigger placeholder="Pilih User Level" class="flex! relative! pl-11! flex-row! bg-primary/50! py-7! px-3! w-full! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
+							<Select.Trigger placeholder="Pilih User Level" class="flex! relative! pl-11! flex-row! bg-primary/50! py-7! px-3! w-full! gap-3! group shadow-none! overflow-hidden! border-1! border-[#000]! rounded-none!">
 								<img src="working arrangement.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
 								<p class="text-base {selectedUser.userlevel === 0 ? 'text-secondary/35!' : 'text-secondary!'}">{userlevels.find((t) => t.value === selectedUser.userlevel)?.label || 'Pilih User Level'}</p>
 								<!-- <img src="down.svg" class="w-2 pt-1" alt="" /> -->
 							</Select.Trigger>
-							<Select.Content class="mb-2! rounded-none! shadow-none! border-0! bg-[#f4efe7]! border-1! border-[#e1d5c5]! p-0! z-[100]!">
+							<Select.Content class="mb-2! rounded-none! shadow-none! border-0! bg-[#fff]! border-1! border-[#000]! p-0! z-[100]!">
 								<Select.Group>
 									<!-- <Select.Label>Fruits</Select.Label> -->
 									{#each userlevels as userlevels (userlevels.value)}
-										<Select.Item class="rounded-none shadow-none px-3 py-3 border-0 hover:bg-transparent! bg-transparent active:bg-transparent!" value={userlevels.value} label={userlevels.label}>
+										<Select.Item class="rounded-none shadow-none px-3 py-3 border-0 hover:bg-[#000]/25! bg-transparent active:bg-transparent!" value={userlevels.value} label={userlevels.label}>
 											<img src="working arrangement.svg" class="w-3 ml-2 mr-2 group-hover:rotate-[-45deg] transition-all duration-500" alt="" />
 											<p class="text-base">{userlevels.label}</p>
 										</Select.Item>
@@ -1604,7 +1604,7 @@
 						<p class="font-medium">Password</p>
 						<div class="relative w-full items-center">
 							<img src="pass.svg?a" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-							<Input bind:value={selectedUser.password} type="password" placeholder="Tidak Diubah" class="w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+							<Input bind:value={selectedUser.password} type="password" placeholder="Tidak Diubah" class="w-full rounded-none bg-primary/50 border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 						</div>
 					</div>
 
