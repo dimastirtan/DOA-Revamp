@@ -177,17 +177,17 @@
 	}}
 />
 
-<img class="fixed bottom-0 left-0 -z-50 h-1/2" src="grad.svg" alt="" />
-<img class="fixed top-0 right-0 -z-50 h-1/2 -rotate-180" src="grad.svg" alt="" />
+<img class="fixed bottom-0 left-0 -z-50 h-1/2 invert" src="grad.svg" alt="" />
+<img class="fixed top-0 right-0 -z-50 h-1/2 -rotate-180 invert" src="grad.svg" alt="" />
 
 <div class="relative flex min-h-dvh! w-dvw flex-col items-center justify-center py-10">
 	<!-- @b list doa -->
-	<div class="bg-white/25 flex items-center justify-center w-8/12">
+	<div class="bg-white/0 flex items-center justify-center w-12/16">
 		<div class="bg-white/50 h-full w-auto mx-4 my-4 flex flex-row">
 			<div class="w-1/3 m-[3vw] flex items-center">
 				<div class="w-full pt-4 flex items-center flex-col gap-2 pb-4">
 					<div class="w-20 flex flex-col gap-2 items-center justify-center aspect-square mb-6 pointer-events-none">
-						<img src="logo.png" class="" />
+						<img src="logo.png" class="" alt="Logo" />
 					</div>
 					<p class="text-center font-medium">Gunakan identitas dari akun WEB DOA lama untuk login.</p>
 					<div class="flex w-full flex-col gap-2">
@@ -208,22 +208,23 @@
 						</div>
 
 						<div class="flex w-full gap-1">
-							<div
-								class="group flex w-1/3 items-center justify-center bg-primary p-2 px-3 py-4 text-center cursor-pointer"
+							<button
+								type="button"
+								class="bg-[#677787]! group flex w-1/3 items-center justify-center bg-primary p-2 px-3 py-4 text-center cursor-pointer"
 								onclick={() => {
 									$mainTitle = 'Proposal Pendaftaran DOA';
 									mbukakTambahUser = true;
 								}}
 							>
 								<p class="font-medium">Daftar</p>
-							</div>
-							<div class="group flex w-2/3 items-center justify-center gap-2 bg-secondary p-2 px-3 py-4 text-center cursor-pointer {loadingLogin ? 'pointer-events-none' : ''}" onclick={fLogin}>
+							</button>
+							<button type="button" class="group flex w-2/3 items-center justify-center gap-2 bg-secondary p-2 px-3 py-4 text-center cursor-pointer {loadingLogin ? 'pointer-events-none' : ''}" onclick={fLogin}>
 								{#if loadingLogin}
 									<img src="spinner.svg?a" class=" h-5! w-5!" alt="" />
 								{:else}
 									<p class="font-medium !text-white">Login</p>
 								{/if}
-							</div>
+							</button>
 						</div>
 					</div>
 				</div>
@@ -246,7 +247,7 @@
 						<img src="plane.svg?v=2" class="plane-img w-60" alt="" />
 					</div>
 				</div>
-				<img src="bg.jpg" class="w-full pointer-events-none" />
+				<img src="bg.jpg" class="w-full pointer-events-none" alt="" />
 			</div>
 		</div>
 	</div>
@@ -270,7 +271,8 @@
 					</div>
 				</div>
 
-				<div
+				<button
+					type="button"
 					class="flex gap-2"
 					onclick={() => {
 						$mainTitle = 'Login';
@@ -282,7 +284,7 @@
 							<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 						</div>
 					</div>
-				</div>
+				</button>
 			</div>
 
 			<p class="p-3 bg-primary mt-3">Form proposal permohonan akses ke aplikasi Design Organization.</p>
@@ -403,7 +405,9 @@
 				</div>
 			</div></ScrollArea
 		>
-		<div
+		<button
+			type="button"
+			class="w-full"
 			onclick={() => {
 				fRegister();
 			}}
@@ -415,6 +419,6 @@
 					<p class="font-medium !text-white">Daftar</p>
 				{/if}
 			</div>
-		</div>
+		</button>
 	</Drawer.Content>
 </Drawer.Root>

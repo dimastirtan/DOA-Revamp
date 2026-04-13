@@ -60,8 +60,6 @@
 	let loadingDrawer = $state(false);
 	let loadingInput = $state(false);
 	let fileInputDoa = $state<FileList | null>(null);
-	let roleEditDoa = $state(false);
-	let roleUser = $state(false);
 	// let dateNow = $state();
 
 	const group = [
@@ -69,16 +67,8 @@
 		{ icon: 'helic.svg', value: 'non_aircraft', label: 'Non Aircraft' }
 	];
 
-	if (data.user.userlevel == -1) {
-		roleEditDoa = true;
-		roleUser = true;
-	} else if (data.user.userlevel == 5) {
-		roleEditDoa = true;
-		roleUser = false;
-	} else {
-		roleEditDoa = false;
-		roleUser = false;
-	}
+	let roleEditDoa = $derived(data.user?.userlevel == -1 || data.user?.userlevel == 5);
+	let roleUser = $derived(data.user?.userlevel == -1);
 
 	selectedDoa = {
 		no: '',
@@ -290,6 +280,9 @@
 			// revisi = selectedDoa.revision || '';
 			// selectedSubtype = selectedDoa.type || '';
 
+			// Guard: skip kalau date sudah bukan string (sudah di-parse sebelumnya)
+			if (selectedDoa.date && typeof selectedDoa.date !== 'string') return;
+
 			if (selectedDoa.date && !selectedDoa.date.includes('0000')) {
 				try {
 					selectedDoa.date = parseDate(selectedDoa.date);
@@ -301,14 +294,14 @@
 				selectedDoa.date = undefined;
 			}
 
-			if (selectedDoa.date2 && !selectedDoa.date2.includes('0000')) {
+			if (selectedDoa.date2 && typeof selectedDoa.date2 === 'string' && !selectedDoa.date2.includes('0000')) {
 				try {
 					selectedDoa.date2 = parseDate(selectedDoa.date2);
 				} catch (e) {
 					console.error('Error parsing valid date:', e);
 					selectedDoa.date2 = undefined;
 				}
-			} else {
+			} else if (typeof selectedDoa.date2 === 'string') {
 				selectedDoa.date2 = undefined;
 			}
 		}
@@ -517,11 +510,11 @@
 	}}
 />
 
-<img class="fixed bottom-0 left-0 -z-50 h-1/2 opacity-75" src="grad.svg" alt="" />
-<img class="fixed top-0 right-0 -z-50 h-1/2 -rotate-180" src="grad.svg" alt="" />
+<img class="fixed bottom-0 left-0 -z-50 h-1/2 invert" src="grad.svg" alt="" />
+<img class="fixed top-0 right-0 -z-50 h-1/2 -rotate-180 invert" src="grad.svg" alt="" />
 
 <!-- @b floating button -->
-<div bind:this={navbar} class="fixed flex flex-row gap-2 bottom-3 left-1/2 -translate-x-1/2 p-2 bg-[#e1d5c5] !drop-shadow-[0px_0px_10px_rgba(0,0,0,0.1)] z-[10]">
+<div bind:this={navbar} class="fixed flex flex-row gap-2 bottom-3 left-1/2 -translate-x-1/2 p-2 bg-[#213C51] !drop-shadow-[0px_0px_10px_rgba(0,0,0,0.1)] z-[10]">
 	<!--<div class="flex flex-row bg-white/50 p-2 px-3 gap-3 group w-auto overflow-hidden">
 		<!~~ <img
 			src="helic.svg?v=3"
@@ -538,6 +531,8 @@
 		{#if roleEditDoa}
 		<div
 			class="flex flex-row bg-secondary/85  p-2 px-4 gap-2 group"
+			role="button"
+			tabindex="0"
 			onclick={() => {
 				anyar = true;
 				selectedDoa = {
@@ -552,13 +547,30 @@
 				$mainTitle = 'Tambah DOA';
 				mbukakTambahDoa = true;
 			}}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					anyar = true;
+					selectedDoa = {
+						no: '',
+						type: '',
+						number: '',
+						revision: '',
+						date: '',
+						date2: '',
+						title: ''
+					};
+					$mainTitle = 'Tambah DOA';
+					mbukakTambahDoa = true;
+				}
+			}}
 		>
 			<img src="plus-white.svg" class="w-3 group-hover:rotate-[180deg] transition-all duration-1000" alt="" />
 			<p class="text-white!">Tambah</p>
 		</div>
 	{/if}
 	<Select.Root type="single" bind:value>
-		<Select.Trigger class="flex! flex-row! bg-[#fef8f0]! py-5! px-3! w-48! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
+		<Select.Trigger class="flex! flex-row! bg-[#fff]! py-5! px-3! w-48! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
 			<!-- {triggerContent} -->
 			<!-- <img
 			src="helic.svg?v=3"
@@ -581,7 +593,7 @@
 			</div>
 			<p class="text-base">{group.find((t) => t.value === value)?.label}</p>
 		</Select.Trigger>
-		<Select.Content class="mb-2! rounded-none! shadow-none! bg-[#fef8f0]! border-1! border-[#e1d5c5]! p-1!">
+		<Select.Content class="mb-2! rounded-none! shadow-none! bg-[#fff]! border-1! border-[#213C51]! p-1!">
 			<Select.Group>
 				<!-- <Select.Label>Fruits</Select.Label> -->
 				{#each group as group (group.value)}
@@ -606,23 +618,34 @@
 	</Select.Root>
 	{#if roleUser}
 		<div
-			class="flex flex-row bg-[#fef8f0] p-2 px-3 gap-2 group aspect-squre"
+			class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group aspect-squre"
+			role="button"
+			tabindex="0"
 			onclick={() => {
 				fUsers();
 				$mainTitle = 'Daftar User';
 				search = '';
 				mbukakUsers = true;
 			}}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					fUsers();
+					$mainTitle = 'Daftar User';
+					search = '';
+					mbukakUsers = true;
+				}
+			}}
 		>
 			<img src="users2.svg?c" class="w-5 group-hover:rotate-[24deg] transition-all duration-500" alt="" />
 		</div>
 	{/if}
 	<Popover.Root bind:open={mbukakSearch}>
-		<Popover.Trigger class="flex! flex-row! bg-[#fef8f0]! p-2! px-3! gap-2! group">
+		<Popover.Trigger class="flex! flex-row! bg-[#fff]! p-2! px-3! gap-2! group">
 			<img src="search.svg" class="w-4 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
 			<p class={roleUser || roleEditDoa ? 'hidden' : ''}>Pencarian</p>
 		</Popover.Trigger>
-		<Popover.Content preventScroll={true} class="mb-3! rounded-none! shadow-none! bg-[#fef8f0]! w-80!  border-1! border-[#e1d5c5]! p-2!">
+		<Popover.Content preventScroll={true} class="mb-3! rounded-none! shadow-none! bg-[#fff]! w-80!  border-1! border-[#213C51]! p-2!">
 			<div class="relative w-full items-center group h-full">
 				<img src="search.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
 				<Input
@@ -644,10 +667,9 @@
 						}
 					}}
 				/>
-				<img
-					src="enter.svg"
-					class=" absolute top-1/2 right-3 h-4! w-4! -translate-y-1/2 cursor-pointer"
-					alt=""
+				<button
+					type="button"
+					class="absolute top-1/2 right-3 h-4! w-4! -translate-y-1/2 cursor-pointer bg-transparent border-0 p-0"
 					onclick={async () => {
 						await fDoas(searchDoa, '');
 						search = '';
@@ -658,15 +680,38 @@
 						mbukakSearch = false;
 						mbukakDoa = true;
 					}}
-				/>
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							fDoas(searchDoa, '');
+							search = '';
+							selectedDoaGroup = '';
+							selectedDoaIcon = 'search';
+							selectedDoaTitle = 'Pencarian: ' + searchDoa;
+							$mainTitle = 'Pencarian: ' + searchDoa;
+							mbukakSearch = false;
+							mbukakDoa = true;
+						}
+					}}
+				>
+					<img src="enter.svg" class="h-4! w-4!" alt="" />
+				</button>
 			</div>
 		</Popover.Content>
 	</Popover.Root>
 
 	<div
-		class="flex flex-row bg-[#fef8f0] p-2 px-3 gap-2 group"
+		class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group"
+		role="button"
+		tabindex="0"
 		onclick={() => {
 			fLogout();
+		}}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				fLogout();
+			}
 		}}
 	>
 		{#if loadingLogout}
@@ -681,13 +726,13 @@
 	<div class="w-11/12 h-1/4 flex justify-between">
 		<div class="flex flex-row w-1/2 gap-2 pointer-events-none">
 			<div class="w-20 flex items-center justify-center aspect-square bg-white/0 p-4">
-				<img src="logo.png" class="" />
+				<img src="logo.png" class="" alt="Logo" />
 			</div>
 		</div>
 
 		<!-- @b top bar -->
 		<div class="flex flex-row w-1/2 gap-2 justify-end">
-			<div class="w-fit bg-white/25 p-4 px-6">
+			<div class="w-fit bg-white/75 p-4 px-6 border-2 border-[#213C51]">
 				<div class="flex gap-1.5">
 					<img src="user.svg" class="w-4" alt="" />
 					<p class="text-secondary opacity-75">User</p>
@@ -700,14 +745,14 @@
 					{/if}
 				</p>
 			</div>
-			<div class="w-fit bg-white/25 p-4 px-6">
+			<div class="w-fit bg-white/75 p-4 px-6 border-2 border-[#213C51]">
 				<div class="flex gap-1.5">
 					<img src="date.svg?f" class="w-5 opacity-75" alt="" />
 					<p class="text-secondary opacity-75">Tanggal</p>
 				</div>
 				<p class="font-medium text-lg whitespace-nowrap overflow-hidden text-ellipsis">{formattedDate}</p>
 			</div>
-			<div class="w-fit min-w-44 bg-white/25 p-4 px-6">
+			<div class="w-fit min-w-44 bg-white/75 p-4 px-6 border-2 border-[#213C51]">
 				<div class="flex gap-1.5">
 					<img src="clock.svg?f" class="w-4" alt="" />
 					<p class="text-secondary opacity-75">Jam</p>
@@ -718,13 +763,13 @@
 	</div>
 
 	<!-- @b list doa -->
-	<div class="bg-white/25 flex items-center justify-center w-11/12 h-3/4">
+	<div class="bg-white/0 flex items-center justify-center w-15/16 h-3/4">
 		<div class="bg-white/50 h-full w-full mx-4 my-4 flex flex-col min-h-[30dvh] relative">
 			<div class="p-4">
 				<img src="spinner_color.svg?a" class=" h-5! w-5! mt-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 {loadingDoa ? 'block' : 'hidden'}" alt="" />
-				<div class="flex justify-between w-full bg-[#F3EBE0] p-4 px-6 mb-2">
-					<p class="font-medium">Daftar DOA</p>
-					<p class="font-medium">Jumlah</p>
+				<div class="flex justify-between w-full bg-[#213C51] p-4 px-6 mb-2">
+					<p class="font-medium text-white!">Daftar DOA</p>
+					<p class="font-medium text-white!">Jumlah</p>
 				</div>
 				{#if data.doa}
 					{#each data.doa[value === 'non_aircraft' ? 'non_aircraft' : 'aircraft'] || [] as item (item.name)}
@@ -740,6 +785,8 @@
 								{#each item.sub as sub (sub.name)}
 									<div
 										class="flex hover:underline cursor-pointer justify-between w-full p-0 px-6 text-secondary opacity-75 group"
+										role="button"
+										tabindex="0"
 										onclick={async () => {
 											await fDoas('', sub.type);
 											search = '';
@@ -750,10 +797,23 @@
 											$mainTitle = sub.name;
 											mbukakDoa = true;
 										}}
+										onkeydown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												fDoas('', sub.type);
+												search = '';
+												selectedDoaType = sub.type;
+												selectedDoaGroup = value.toUpperCase().replace('_', ' ');
+												selectedDoaIcon = item.name.toLowerCase();
+												selectedDoaTitle = sub.name;
+												$mainTitle = sub.name;
+												mbukakDoa = true;
+											}
+										}}
 									>
 										<div class="flex gap-1.5 items-center">
 											<div class="pl-2 pr-2 flex justify-center">
-												<div class="w-0.5 h-7 border-l border-dashed border-secondary" />
+												<div class="w-0.5 h-7 border-l border-dashed border-secondary"></div>
 											</div>
 											<p class="group-hover:scale-[101%] transition-all">{sub.name}</p>
 										</div>
@@ -764,6 +824,8 @@
 						{:else}
 							<div
 								class="nonsub flex justify-between w-full p-2 px-6 hover:underline cursor-pointer hover:scale-[100.5%] transition-all"
+								role="button"
+								tabindex="0"
 								onclick={async () => {
 									await fDoas('', item.type);
 									search = '';
@@ -773,6 +835,19 @@
 									selectedDoaTitle = item.name;
 									$mainTitle = item.name;
 									mbukakDoa = true;
+								}}
+								onkeydown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										fDoas('', item.type);
+										search = '';
+										selectedDoaType = item.type;
+										selectedDoaGroup = value.toUpperCase().replace('_', ' ');
+										selectedDoaIcon = item.name.toLowerCase();
+										selectedDoaTitle = item.name;
+										$mainTitle = item.name;
+										mbukakDoa = true;
+									}
 								}}
 							>
 								<div class="flex gap-1.5">
@@ -799,20 +874,20 @@
 		$mainTitle = group.find((t) => t.value === value)?.label || '';
 	}}
 >
-	<Drawer.Content class="bg-[#FAF8F4]! min-h-[95dvh]! flex! items-center!">
+	<Drawer.Content class="bg-[#fff]! min-h-[95dvh]! flex! items-center! opacity-95!">
 		<div class="h-screen w-screen z-50 absolute {loadingDrawer ? 'block' : 'hidden'}"><img src="spinner_color.svg?a" class=" h-5! w-5! absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" alt="" /></div>
 		<div class="w-11/12 pt-12 gap-2 flex-col flex">
 			<div class="w-full flex justify-between">
 				<div class="flex gap-2">
 					<div class={selectedDoaGroup ? 'flex' : 'hidden'}>
-						<div class="plane-img flex flex-row bg-[#F3EBE0] p-2 px-3 gap-2 group">
+						<div class="plane-img flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
 							<img src={selectedDoaGroup === 'AIRCRAFT' ? 'plane.svg?v=2' : 'helic.svg?v=3'} class="w-4 {selectedDoaGroup === 'AIRCRAFT' ? 'w-4' : 'w-5'}" alt="" />
 							<p class="font-medium">{selectedDoaGroup.toUpperCase().replace('-', ' ')}</p>
 						</div>
 					</div>
 
 					<div>
-						<div class="flex flex-row bg-[#F3EBE0] p-2 px-3 gap-2 group">
+						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group max-w-106">
 							<img src={selectedDoaIcon + '.svg'} class="w-4" alt="" />
 							<p class="font-medium">{selectedDoaTitle}</p>
 						</div>
@@ -821,6 +896,8 @@
 
 				<div class="flex gap-2">
 					<div
+						role="button"
+						tabindex="0"
 						onclick={() => {
 							anyar = true;
 							selectedDoa = {
@@ -835,6 +912,23 @@
 							$mainTitle = 'Tambah DOA';
 							mbukakTambahDoa = true;
 						}}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								anyar = true;
+								selectedDoa = {
+									no: '',
+									type: '',
+									number: '',
+									revision: '',
+									date: '',
+									date2: '',
+									title: ''
+								};
+								$mainTitle = 'Tambah DOA';
+								mbukakTambahDoa = true;
+							}
+						}}
 						class={roleEditDoa ? '' : 'hidden'}
 					>
 						<div class="flex flex-row bg-secondary p-2 gap-2 px-4 group">
@@ -843,7 +937,7 @@
 						</div>
 					</div>
 					<div>
-						<div class="flex flex-row bg-[#F3EBE0] items-center group">
+						<div class="flex flex-row bg-[#677787] items-center group">
 							<div class="bg-secondary p-2 px-3">
 								<p class="text-white! min-w-6 min-h-6 flex items-center justify-center text-center">
 									{#if loadingDrawer}
@@ -859,18 +953,27 @@
 					<div>
 						<div class="relative w-full items-center group h-full">
 							<img src="search.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
-							<Input type="text" ref={searchRef} placeholder="Cari..." class="search w-full rounded-none bg-primary border-transparent! placeholder:text-secondary/35 h-full pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
+							<Input type="text" ref={searchRef} placeholder="Cari..." class="bg-[#677787]! search w-full rounded-none border-transparent! placeholder:text-[#fff]/50 h-full pl-11! text-[#fff]! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
 						</div>
 					</div>
 					<div
 						class="flex gap-2"
+						role="button"
+						tabindex="0"
 						onclick={() => {
 							$mainTitle = group.find((t) => t.value === value)?.label || '';
 							mbukakDoa = false;
 						}}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								$mainTitle = group.find((t) => t.value === value)?.label || '';
+								mbukakDoa = false;
+							}
+						}}
 					>
 						<div>
-							<div class="flex flex-row bg-[#F3EBE0] p-3.5 group">
+							<div class="flex flex-row bg-[#677787] p-3.5 group">
 								<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 							</div>
 						</div>
@@ -880,18 +983,18 @@
 			<div class="table-scroll-container">
 				<Table.Root>
 					<Table.Header class="shadow-none!">
-						<Table.Row class="bg-[#F3EBE0]! sticky! top-0! z-20!">
-							<Table.Head class="py-4! pl-4! cursor-pointer " onclick={() => handleSort('number')}>
+						<Table.Row class="text-[#fff] bg-[#213C51]! sticky! top-0! z-20! text-white!">
+							<Table.Head class="py-4! pl-4! cursor-pointer" onclick={() => handleSort('number')}>
 								<div class="flex items-center gap-2 relative">
-									Nomor
+									<p class="text-white!">Nomor</p>
 									{#if sortColumn === 'number'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down.svg" class="w-2 absolute right-1 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('nik')}>
 								<div class="flex items-center gap-2 relative">
-									NIK
+									<p class="text-white!">NIK</p>
 									{#if sortColumn === 'nik'}
 										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
@@ -899,7 +1002,7 @@
 							</Table.Head>
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('nama')}>
 								<div class="flex items-center gap-2 relative">
-									Nama
+									<p class="text-white!">Nama</p>
 									{#if sortColumn === 'nama'}
 										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
@@ -907,7 +1010,7 @@
 							</Table.Head>
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('revision')}>
 								<div class="flex items-center gap-2 relative">
-									Rev
+									<p class="text-white!">Rev</p>
 									{#if sortColumn === 'revision'}
 										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
@@ -915,7 +1018,7 @@
 							</Table.Head>
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('date')}>
 								<div class="flex items-center gap-2 relative">
-									Tanggal
+									<p class="text-white!">Tanggal</p>
 									{#if sortColumn === 'date'}
 										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
@@ -923,7 +1026,7 @@
 							</Table.Head>
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('date2')}>
 								<div class="flex items-center gap-2 relative">
-									Valid
+									<p class="text-white!">Valid</p>
 									{#if sortColumn === 'date2'}
 										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
@@ -931,7 +1034,7 @@
 							</Table.Head>
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('title')}>
 								<div class="flex items-center gap-2 relative">
-									Judul
+									<p class="text-white!">Judul</p>
 									{#if sortColumn === 'title'}
 										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
@@ -954,17 +1057,39 @@
 									<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-all">
 										<div
 											class="bg-primary flex p-1.5 aspect-square border-1 border-secondary {roleEditDoa ? '' : 'hidden'}"
+											role="button"
+											tabindex="0"
 											onclick={() => {
 												anyar = false;
 												selectedDoa = doa;
 												$mainTitle = 'Edit DOA';
 												mbukakTambahDoa = true;
 											}}
+											onkeydown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													anyar = false;
+													selectedDoa = doa;
+													$mainTitle = 'Edit DOA';
+													mbukakTambahDoa = true;
+												}
+											}}
 										>
 											<img src="edit.svg" class="w-3.5" alt="" />
 										</div>
 										{#if doa.nmpath}
-											<div onclick={() => window.open(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM') ? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}` : `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`, '_blank')} class="bg-primary flex p-1.5 aspect-square border-1 border-secondary cursor-pointer">
+											<div
+												role="button"
+												tabindex="0"
+												onclick={() => window.open(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM') ? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}` : `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`, '_blank')}
+												onkeydown={(e) => {
+													if (e.key === 'Enter' || e.key === ' ') {
+														e.preventDefault();
+														window.open(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM') ? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}` : `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`, '_blank');
+													}
+												}}
+												class="bg-primary flex p-1.5 aspect-square border-1 border-secondary cursor-pointer"
+											>
 												<img src="download.svg" class="w-3.5" alt="" />
 											</div>
 										{/if}
@@ -997,7 +1122,7 @@
 			<ScrollArea scrollbarYClasses="hidden" class="el relative! flex! items-center! px-4! gap-2! h-full! min-h-0! flex-col!" orientation="vertical" type="scroll" data-vaul-no-drag>
 				<div class="w-full flex justify-between pt-4">
 					<div>
-						<div class="flex flex-row bg-[#F3EBE0] p-2 px-3 gap-2 group">
+						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
 							<img src="plus.svg?f" class="w-4" alt="" />
 							<p class="font-medium">Tambah DOA</p>
 						</div>
@@ -1005,6 +1130,8 @@
 
 					<div
 						class="flex gap-2"
+						role="button"
+						tabindex="0"
 						onclick={() => {
 							if (mbukakDoa) {
 								$mainTitle = selectedDoaTitle;
@@ -1013,9 +1140,20 @@
 							}
 							mbukakTambahDoa = false;
 						}}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								if (mbukakDoa) {
+									$mainTitle = selectedDoaTitle;
+								} else {
+									$mainTitle = group.find((t) => t.value === value)?.label || '';
+								}
+								mbukakTambahDoa = false;
+							}
+						}}
 					>
 						<div>
-							<div class="flex flex-row bg-[#F3EBE0] p-3.5 group">
+							<div class="flex flex-row bg-[#677787] p-3.5 group">
 								<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 							</div>
 						</div>
@@ -1143,7 +1281,18 @@
 			</ScrollArea>
 			{#if anyar}
 				<div>
-					<div class="flex w-full justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group" onclick={() => fDoa(false)}>
+					<div
+						class="flex w-full justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group"
+						role="button"
+						tabindex="0"
+						onclick={() => fDoa(false)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								fDoa(false);
+							}
+						}}
+					>
 						{#if loadingInput}
 							<img src="spinner.svg?a" class="h-5! w-5! mt-1" alt="" />
 						{:else}
@@ -1153,14 +1302,36 @@
 				</div>
 			{:else}
 				<div class="flex">
-					<div class="flex w-1/3 justify-center items-center py-4 text-center bg-red-900 p-2 px-3 gap-2 group" onclick={() => fDoa(true)}>
+					<div
+						class="flex w-1/3 justify-center items-center py-4 text-center bg-red-900 p-2 px-3 gap-2 group"
+						role="button"
+						tabindex="0"
+						onclick={() => fDoa(true)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								fDoa(true);
+							}
+						}}
+					>
 						{#if loadingInput}
 							<img src="spinner.svg?a" class="h-5! w-5! mt-1" alt="" />
 						{:else}
 							<p class="font-medium !text-white">Hapus</p>
 						{/if}
 					</div>
-					<div class="flex w-2/3 justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group" onclick={() => fDoa(false)}>
+					<div
+						class="flex w-2/3 justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group"
+						role="button"
+						tabindex="0"
+						onclick={() => fDoa(false)}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								fDoa(false);
+							}
+						}}
+					>
 						{#if loadingInput}
 							<img src="spinner.svg?a" class="h-5! w-5! mt-1" alt="" />
 						{:else}
@@ -1186,7 +1357,7 @@
 			<div class="w-11/12 pt-12 gap-2 flex flex-col">
 				<div class="w-full flex justify-between">
 					<div>
-						<div class="flex flex-row bg-[#F3EBE0] p-2 px-3 gap-2 group">
+						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
 							<img src="users3.svg?f" class="w-4" alt="" />
 							<p class="font-medium">Daftar User</p>
 						</div>
@@ -1194,7 +1365,7 @@
 
 					<div class="flex gap-2">
 						<div>
-							<div class="flex flex-row bg-[#F3EBE0] items-center group">
+							<div class="flex flex-row bg-[#677787] items-center group">
 								<div class="bg-secondary p-2 px-3">
 								<p class="text-white! min-w-6 min-h-6 flex items-center justify-center text-center">
 									{#if loadingDrawer}
@@ -1208,24 +1379,33 @@
 							</div>
 						</div>
 						<div>
-							<!-- <div class="relative flex flex-row bg-[#F3EBE0] p-3 group">
+							<!-- <div class="relative flex flex-row bg-[#677787] p-3 group">
 							<img src="search.svg" class="w-4 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
 							<div class="bg-secondary w-2 h-2 absolute -right-0.5 -top-0.5"></div>
 						</div> -->
 							<div class="relative w-full items-center group h-full">
 								<img src="search.svg" class="absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
-								<Input type="text" placeholder="Cari..." ref={searchRef} class="search w-full rounded-none bg-primary border-transparent! placeholder:text-secondary/35 h-full pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
+								<Input type="text" placeholder="Cari..." ref={searchRef} class="bg-[#677787]! search w-full rounded-none border-transparent! placeholder:text-[#fff]/50 h-full pl-11! text-[#fff]! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
 							</div>
 						</div>
 						<div
 							class="flex gap-2"
+							role="button"
+							tabindex="0"
 							onclick={() => {
 								$mainTitle = group.find((t) => t.value === value)?.label || '';
 								mbukakUsers = false;
 							}}
+							onkeydown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									$mainTitle = group.find((t) => t.value === value)?.label || '';
+									mbukakUsers = false;
+								}
+							}}
 						>
 							<div>
-								<div class="flex flex-row bg-[#F3EBE0] p-3.5 group">
+								<div class="flex flex-row bg-[#677787] p-3.5 group">
 									<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 								</div>
 							</div>
@@ -1235,10 +1415,10 @@
 				<div class="table-scroll-container">
 					<Table.Root>
 						<Table.Header class="shadow-none!">
-							<Table.Row class="bg-[#F3EBE0]! sticky! top-0! z-20!">
+							<Table.Row class="bg-[#213C51]! sticky! top-0! z-20!">
 								<Table.Head class="py-4! pl-4! cursor-pointer " onclick={() => handleSortUser('activated')}>
 									<div class="flex items-center gap-2 relative">
-										Status
+										<p class="text-white!">Status</p>
 										{#if sortColumnUser === 'activated'}
 											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
@@ -1246,7 +1426,7 @@
 								</Table.Head>
 								<Table.Head class="text-center! cursor-pointer " onclick={() => handleSortUser('username')}>
 									<div class="flex items-center justify-center gap-2 relative">
-										NIK
+										<p class="text-white!">NIK</p>
 										{#if sortColumnUser === 'username'}
 											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
@@ -1254,7 +1434,7 @@
 								</Table.Head>
 								<Table.Head class="cursor-pointer " onclick={() => handleSortUser('configPenghasil')}>
 									<div class="flex items-center gap-2 relative">
-										Nama
+										<p class="text-white!">Nama</p>
 										{#if sortColumnUser === 'configPenghasil'}
 											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
@@ -1263,7 +1443,7 @@
 								<!-- <Table.Head>Organisasi</Table.Head> -->
 								<Table.Head class="cursor-pointer " onclick={() => handleSortUser('userlevel_name')}>
 									<div class="flex items-center gap-2 relative">
-										User Level
+										<p class="text-white!">User Level</p>
 										{#if sortColumnUser === 'userlevel_name'}
 											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
@@ -1299,6 +1479,8 @@
 										<Table.Cell class="w-1/6! select-text!">{userx.userlevel_name}</Table.Cell>
 										<div
 											class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-all"
+											role="button"
+											tabindex="0"
 											onclick={() => {
 												selectedUser = userx;
 												selectedUserLevel = userx.userlevel.toString();
@@ -1308,6 +1490,16 @@
 												// console.log(userx);
 												$mainTitle = 'Edit User';
 												mbukakEditUser = true;
+											}}
+											onkeydown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													selectedUser = userx;
+													selectedUserLevel = userx.userlevel.toString();
+													selectedUser.password = '';
+													$mainTitle = 'Edit User';
+													mbukakEditUser = true;
+												}
 											}}
 										>
 											{#if userx.userlevel}
@@ -1339,7 +1531,7 @@
 			<ScrollArea scrollbarYClasses="hidden" class="el relative! flex! items-center! px-4! gap-2! h-full! min-h-0! flex-col!" orientation="vertical" type="scroll" data-vaul-no-drag>
 				<div class="w-full flex justify-between pt-4">
 					<div>
-						<div class="flex flex-row bg-[#F3EBE0] p-2 px-3 gap-2 group">
+						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
 							<img src="user.svg?f" class="w-4" alt="" />
 							<p class="font-medium">Edit User</p>
 						</div>
@@ -1347,13 +1539,22 @@
 
 					<div
 						class="flex gap-2"
+						role="button"
+						tabindex="0"
 						onclick={() => {
 							$mainTitle = 'Daftar User';
 							mbukakTambahDoa = false;
 						}}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								$mainTitle = 'Daftar User';
+								mbukakTambahDoa = false;
+							}
+						}}
 					>
 						<div>
-							<div class="flex flex-row bg-[#F3EBE0] p-3.5 group">
+							<div class="flex flex-row bg-[#677787] p-3.5 group">
 								<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 							</div>
 						</div>
@@ -1430,14 +1631,36 @@
 				</div>
 			</ScrollArea>
 			<div class="flex">
-				<div class="flex w-1/3 justify-center items-center py-4 text-center bg-red-900 p-2 px-3 gap-2 group" onclick={() => fUser(true)}>
+				<div
+					class="flex w-1/3 justify-center items-center py-4 text-center bg-red-900 p-2 px-3 gap-2 group"
+					role="button"
+					tabindex="0"
+					onclick={() => fUser(true)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							fUser(true);
+						}
+					}}
+				>
 					{#if loadingInput}
 						<img src="spinner.svg?a" class="h-5! w-5! mt-1" alt="" />
 					{:else}
 						<p class="font-medium !text-white">Hapus</p>
 					{/if}
 				</div>
-				<div class="flex w-2/3 justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group" onclick={() => fUser(false)}>
+				<div
+					class="flex w-2/3 justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group"
+					role="button"
+					tabindex="0"
+					onclick={() => fUser(false)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							fUser(false);
+						}
+					}}
+				>
 					{#if loadingInput}
 						<img src="spinner.svg?a" class="h-5! w-5! mt-1" alt="" />
 					{:else}

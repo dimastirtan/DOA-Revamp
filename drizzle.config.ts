@@ -7,10 +7,9 @@ export default defineConfig({
 	verbose: true,
 	strict: true,
 	dbCredentials: {
-		host: '10.1.95.76',
+		host: 'localhost',
 		port: 3306,
-		user: 'doa-revamp',
-		password: 'ab8382bt',
+		user: 'root',
 		database: 'standard'
 		// host: '127.0.0.1',
 		// port: 3307,

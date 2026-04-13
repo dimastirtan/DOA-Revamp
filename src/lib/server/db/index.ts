@@ -15,16 +15,11 @@ import * as schema from './schema';
 
 export const db = drizzle(
 	createPool({
-		host: '10.1.95.76',
+		host: '127.0.0.1',
 		port: 3306,
-		user: 'doa-revamp',
-		password: 'ab8382bt',
-		database: 'standard'
-		// host: '127.0.0.1',
-		// port: 3307,
-		// user: 'root',
-		// password: 'pass',
-		// database: 'standard'
+		user: 'root',
+		password: '',
+		database: 'doan',
 	}),
 	{ schema, mode: 'default' }
 );

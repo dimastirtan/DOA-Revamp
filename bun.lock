@@ -20,7 +20,7 @@
         "smoothscroll-polyfill": "^0.4.4",
         "vanilla-tilt": "^1.8.1",
         "vite-plugin-svelte-console-remover": "^1.0.10",
-        "yup": "^1.7.1",
+        "yup": "^1.7.1"
       },
       "devDependencies": {
         "@dnd-kit-svelte/svelte": "^0.1.5",
@@ -68,9 +68,9 @@
         "unplugin-tailwindcss-mangle": "^5.0.0",
         "vaul-svelte": "^1.0.0-next.7",
         "vite": "^7.2.2",
-        "zod": "^4.1.13",
-      },
-    },
+        "zod": "^4.1.13"
+      }
+    }
   },
   "packages": {
     "@ast-core/escape": ["@ast-core/escape@1.0.1", "", {}, "sha512-/kVjBkDzYrSW1S+gTBCuOfhnNkge9qZFJgLT+MOZdmPN4Vts36S60uU5br3ozoxpJ1eRGe6pGy7/EfcOpFFHlA=="],
@@ -1171,6 +1171,6 @@
 
     "vite-plugin-svelte-console-remover/vite/rollup": ["rollup@2.77.3", "", { "optionalDependencies": { "fsevents": "~2.3.2" }, "bin": { "rollup": "dist/bin/rollup" } }, "sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g=="],
 
-    "vite-plugin-svelte-console-remover/vite/esbuild/@esbuild/linux-loong64": ["@esbuild/linux-loong64@0.14.54", "", { "os": "linux", "cpu": "none" }, "sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw=="],
+    "vite-plugin-svelte-console-remover/vite/esbuild/@esbuild/linux-loong64": ["@esbuild/linux-loong64@0.14.54", "", { "os": "linux", "cpu": "none" }, "sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw=="]
   }
 }

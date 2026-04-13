@@ -20,6 +20,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	console.log(data);
 
+	if (data.d && data.e) {
+    return await db
+        .update(standard)
+        .set({ remark: 'D' })
+        .where(eq(standard.no, data.e.no))
+        .then(() => json({ success: true }))
+        .catch((error) => {
+            console.error(error);
+            return json({ success: false, error: error.message }, { status: 400 });
+        });
+	}
+
 	const entry = data.e || data.i;
 
 	if (entry) {

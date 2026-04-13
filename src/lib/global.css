@@ -2,7 +2,7 @@
 	scrollbar-width: none;
 	font-kerning: none;
 	cursor: default;
-	color: #5c4d3c;
+	color: #000000;
 	outline: none !important;
 	user-select: none;
 }
@@ -20,12 +20,12 @@ input::-webkit-inner-spin-button {
 
 ::-moz-selection {
 	color: #fff;
-	background: #5c4d3c;
+	background: #000000;
 }
 
 ::selection {
 	color: #fff;
-	background: #5c4d3c;
+	background: #000000;
 }
 
 html {
@@ -250,4 +250,17 @@ input[type=number]::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* FIXED BB-1: Enable clicks on buttons/drawers */
+.btn-container {
+	cursor: pointer !important;
+	user-select: auto !important;
+	pointer-events: auto !important;
+}
+
+.btn-container * {
+	cursor: pointer !important;
+	user-select: auto !important;
+	pointer-events: auto !important;
 }
