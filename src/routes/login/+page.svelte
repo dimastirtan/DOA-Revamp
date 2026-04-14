@@ -195,7 +195,7 @@
 							<p class="font-medium">NIK</p>
 							<div class="relative w-full items-center">
 								<img src="nik.svg" class=" h-5! w-5! absolute left-3 top-1/2 -translate-y-1/2" alt="" />
-								<Input type="text" bind:value={username} placeholder="Masukkan NIK" class="text-base! shadow-none! w-full rounded-none border-transparent! bg-primary/50 py-7! pl-11! placeholder:text-secondary/35 focus:!border-transparent focus:!ring-transparent focus:!ring-offset-0 {loadingLogin ? 'pointer-events-none' : ''}" autofocus={false} onkeydown={(e) => e.key === 'Enter' && fLogin()} />
+								<Input type="text" bind:value={username} placeholder="Masukkan NIK" class="text-base! shadow-none! w-full rounded-none border-[#000]! bg-[#fff] py-7! pl-11! placeholder:text-[#000]/35 focus:!border-[#000] focus:!ring-transparent focus:!ring-offset-0 {loadingLogin ? 'pointer-events-none' : ''}" autofocus={false} onkeydown={(e) => e.key === 'Enter' && fLogin()} />
 							</div>
 						</div>
 
@@ -203,7 +203,7 @@
 							<p class="font-medium">Password</p>
 							<div class="relative w-full items-center">
 								<img src="pass.svg" class=" h-5! w-5! absolute left-3 top-1/2 -translate-y-1/2" alt="" />
-								<Input type="password" bind:value={password} placeholder="Masukkan Password" class="text-base! shadow-none! w-full rounded-none bg-primary/50 border-transparent! placeholder:text-secondary/35 py-7! pl-11! focus:!border-transparent focus:!ring-transparent focus:!ring-offset-0 {loadingLogin ? 'pointer-events-none' : ''}" autofocus={false} onkeydown={(e) => e.key === 'Enter' && fLogin()} />
+								<Input type="password" bind:value={password} placeholder="Masukkan Password" class="text-base! shadow-none! w-full rounded-none bg-[#fff] border-[#000]! placeholder:text-[#000]/35 py-7! pl-11! focus:!border-[#000] focus:!ring-transparent focus:!ring-offset-0 {loadingLogin ? 'pointer-events-none' : ''}" autofocus={false} onkeydown={(e) => e.key === 'Enter' && fLogin()} />
 							</div>
 						</div>
 
@@ -261,13 +261,13 @@
 		$mainTitle = 'Login';
 	}}
 >
-	<Drawer.Content class="bg-[#FAF8F4]! !min-h-0">
+	<Drawer.Content class="bg-[#fff]! !min-h-0">
 		<ScrollArea scrollbarYClasses="hidden" class="el relative flex items-center px-4 gap-2 h-full !min-h-0 flex-col " orientation="vertical" type="scroll" data-vaul-no-drag>
 			<div class="w-full flex justify-between pt-4" data-vaul-no-drag>
 				<div>
-					<div class="flex flex-row bg-[#F3EBE0] p-2 px-3 gap-2 group">
-						<img src="user.svg?f" class="w-4" alt="" />
-						<p class="font-medium">Surat Pernyataan</p>
+					<div class="flex flex-row bg-[#213C51] p-2 px-3 gap-2 group">
+						<img src="user-white.svg?f" class="w-4" alt="" />
+						<p class="font-medium text-white!">Surat Pernyataan</p>
 					</div>
 				</div>
 
@@ -280,8 +280,8 @@
 					}}
 				>
 					<div>
-						<div class="flex flex-row bg-[#F3EBE0] p-3.5 group">
-							<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
+						<div class="flex flex-row bg-[#213C51] p-3.5 group">
+							<img src="minimize-white.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 						</div>
 					</div>
 				</button>
@@ -297,7 +297,7 @@
 							<p class="font-medium">Email</p>
 							<div class="relative w-full items-center">
 								<img src="mail.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.email} type="text" placeholder="Masukkan Email" class="w-full rounded-none border-transparent! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} onfocus={(e) => e.target.setSelectionRange(0, 0)} />
+								<Input bind:value={register.email} type="text" placeholder="Masukkan Email" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} onfocus={(e) => e.target.setSelectionRange(0, 0)} />
 							</div>
 						</div>
 
@@ -305,7 +305,7 @@
 							<p class="font-medium">Nama</p>
 							<div class="relative w-full items-center">
 								<img src="name.svg?a" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.nama} type="text" placeholder="Masukkan Nama" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+								<Input bind:value={register.nama} type="text" placeholder="Masukkan Nama" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 							</div>
 						</div>
 
@@ -313,7 +313,7 @@
 							<p class="font-medium">Password</p>
 							<div class="relative w-full items-center">
 								<img src="pass.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.password} type="password" placeholder="Masukkan Password" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+								<Input bind:value={register.password} type="password" placeholder="Masukkan Password" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 							</div>
 						</div>
 					</div>
@@ -326,7 +326,7 @@
 							<p class="font-medium">NIK</p>
 							<div class="relative w-full items-center">
 								<img src="nik.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.nik} type="text" placeholder="Masukkan NIK" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} oninput={(e) => (e.target.value = e.target.value.replace(/[^0-9]/g, ''))} />
+								<Input bind:value={register.nik} type="text" placeholder="Masukkan NIK" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} oninput={(e) => (e.target.value = e.target.value.replace(/[^0-9]/g, ''))} />
 							</div>
 						</div>
 
@@ -334,7 +334,7 @@
 							<p class="font-medium">Kode Organisasi</p>
 							<div class="relative w-full items-center">
 								<img src="engineering standard.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.org} type="text" placeholder="Masukkan Kode Organisasi" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} oninput={(e) => (e.target.value = e.target.value.toUpperCase())} />
+								<Input bind:value={register.org} type="text" placeholder="Masukkan Kode Organisasi" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} oninput={(e) => (e.target.value = e.target.value.toUpperCase())} />
 							</div>
 						</div>
 
@@ -342,7 +342,7 @@
 							<p class="font-medium">Lokasi Kerja</p>
 							<div class="relative w-full items-center">
 								<img src="case.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
-								<Input bind:value={register.org_lokasi} type="text" placeholder="Masukkan Lokasi Kerja" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+								<Input bind:value={register.org_lokasi} type="text" placeholder="Masukkan Lokasi Kerja" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 							</div>
 						</div>
 					</div>
@@ -355,7 +355,7 @@
 							<p class="font-medium">Nama Manager</p>
 							<div class="relative w-full items-center">
 								<img src="name.svg?a" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.mgr_nama} type="text" placeholder="Masukkan Nama Manager" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+								<Input bind:value={register.mgr_nama} type="text" placeholder="Masukkan Nama Manager" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 							</div>
 						</div>
 
@@ -363,7 +363,7 @@
 							<p class="font-medium">NIK Manager</p>
 							<div class="relative w-full items-center">
 								<img src="nik.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.mgr_nik} type="text" placeholder="Masukkan NIK Manager" class="nik w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} oninput={(e) => (e.target.value = e.target.value.replace(/[^0-9]/g, ''))} />
+								<Input bind:value={register.mgr_nik} type="text" placeholder="Masukkan NIK Manager" class="nik w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} oninput={(e) => (e.target.value = e.target.value.replace(/[^0-9]/g, ''))} />
 							</div>
 						</div>
 
@@ -371,7 +371,7 @@
 							<p class="font-medium">Email Manager</p>
 							<div class="relative w-full items-center">
 								<img src="mail.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-								<Input bind:value={register.mgr_email} type="text" placeholder="Masukkan Email Manager" class="w-full rounded-none bg-primary/75 border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} onfocus={(e) => e.target.setSelectionRange(0, 0)} />
+								<Input bind:value={register.mgr_email} type="text" placeholder="Masukkan Email Manager" class="w-full rounded-none border-[#000]! bg-primary/75 placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} onfocus={(e) => e.target.setSelectionRange(0, 0)} />
 							</div>
 						</div>
 					</div>
@@ -379,7 +379,7 @@
 					<div class="flex w-full flex-col justify-center gap-1 text-left pt-4">
 						<p class="font-medium">Dengan ini, saya tidak akan:</p>
 						<Label class="flex items-start gap-3 rounded-none border p-3 border-black/10 has-[[aria-checked=true]]:border-secondary has-[[aria-checked=true]]:bg-primary/50">
-							<Checkbox bind:checked={tos1} id="toggle-2" class="data-[state=checked]:bg-secondary data-[state=checked]:text-white shadow-none! border-none! bg-black/10 rounded-none" />
+							<Checkbox bind:checked={tos1} id="toggle-2" class="data-[state=checked]:bg-secondary data-[state=checked]:text-white shadow-none! border-[#000]! bg-black/10 rounded-none" />
 							<div class="grid gap-1.5 font-normal">
 								<p class="text-sm leading-none font-medium">Duplikasi Data</p>
 								<p class="text-secondary/75! text-sm">Saya tidak akan menduplikat/mencetak semua/sebagian data dan informasi yang ada di website/portal.</p>
@@ -387,7 +387,7 @@
 						</Label>
 
 						<Label class="flex items-start gap-3 rounded-none border p-3 border-black/10 has-[[aria-checked=true]]:border-secondary has-[[aria-checked=true]]:bg-primary/50">
-							<Checkbox bind:checked={tos2} id="toggle-2" class="data-[state=checked]:bg-secondary data-[state=checked]:text-white shadow-none! border-none! bg-black/10 rounded-none" />
+							<Checkbox bind:checked={tos2} id="toggle-2" class="data-[state=checked]:bg-secondary data-[state=checked]:text-white shadow-none! border-[#000]! bg-black/10 rounded-none" />
 							<div class="grid gap-1.5 font-normal">
 								<p class="text-sm leading-none font-medium">Sharing Akun</p>
 								<p class="text-secondary/75! text-sm">Saya tidak akan memberikan kewenangan kepada orang lain.</p>
@@ -395,7 +395,7 @@
 						</Label>
 
 						<Label class="flex items-start gap-3 rounded-none border p-3 border-black/10 has-[[aria-checked=true]]:border-secondary has-[[aria-checked=true]]:bg-primary/50">
-							<Checkbox bind:checked={tos3} id="toggle-2" class="data-[state=checked]:bg-secondary data-[state=checked]:text-white shadow-none! border-none! bg-black/10 rounded-none" />
+							<Checkbox bind:checked={tos3} id="toggle-2" class="data-[state=checked]:bg-secondary data-[state=checked]:text-white shadow-none! border-[#000]! bg-black/10 rounded-none" />
 							<div class="grid gap-1.5 font-normal">
 								<p class="text-sm leading-none font-medium">Distribusi Data</p>
 								<p class="text-secondary/75! text-sm">Saya tidak mendistribusikan/membawa keluar area kerja/keluar kawasan perusahaan semua/sebagian data dan informasi yang ada di website/portal kepada pihak lain (pihak ketiga).</p>

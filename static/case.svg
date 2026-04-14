@@ -1,3 +1,7 @@
-<svg width="41" height="39" viewBox="0 0 41 39" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M24.5 8.16667V4.08333H16.3333V8.16667H24.5ZM4.08333 14.2917V32.6667C4.08333 33.7896 5.00208 34.7083 6.125 34.7083H34.7083C35.8312 34.7083 36.75 33.7896 36.75 32.6667V14.2917C36.75 13.1688 35.8312 12.25 34.7083 12.25H6.125C5.00208 12.25 4.08333 13.1688 4.08333 14.2917ZM36.75 8.16667C39.0162 8.16667 40.8333 9.98375 40.8333 12.25V34.7083C40.8333 36.9746 39.0162 38.7917 36.75 38.7917H4.08333C1.81708 38.7917 0 36.9746 0 34.7083L0.0204166 12.25C0.0204166 9.98375 1.81708 8.16667 4.08333 8.16667H12.25V4.08333C12.25 1.81708 14.0671 0 16.3333 0H24.5C26.7662 0 28.5833 1.81708 28.5833 4.08333V8.16667H36.75Z" fill="#5C4D3C"/>
-</svg>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+<svg fill="#000000" version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256px" height="256px" viewBox="-6.4 -6.4 76.80 76.80" enable-background="new 0 0 64 64" xml:space="preserve" transform="rotate(0)matrix(-1, 0, 0, 1, 0, 0)">
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.384"/>
+<g id="SVGRepo_iconCarrier"> <g> <path d="M62,16H45v-6c0-1.104-0.896-2-2-2H21c-1.104,0-2,0.896-2,2v6H2c-1.104,0-2,0.896-2,2v36c0,1.104,0.896,2,2,2h60 c1.104,0,2-0.896,2-2V18C64,16.896,63.104,16,62,16z M23,12h18v4H23V12z M60,52H4V20h56V52z"/> </g> </g>
+</svg>

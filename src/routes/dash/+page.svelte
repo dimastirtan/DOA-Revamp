@@ -882,14 +882,14 @@
 					<div class={selectedDoaGroup ? 'flex' : 'hidden'}>
 						<div class="plane-img flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
 							<img src={selectedDoaGroup === 'AIRCRAFT' ? 'plane.svg?v=2' : 'helic.svg?v=3'} class="w-4 {selectedDoaGroup === 'AIRCRAFT' ? 'w-4' : 'w-5'}" alt="" />
-							<p class="font-medium">{selectedDoaGroup.toUpperCase().replace('-', ' ')}</p>
+							<p class="font-medium text-white!">{selectedDoaGroup.toUpperCase().replace('-', ' ')}</p>
 						</div>
 					</div>
 
 					<div>
 						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group max-w-106">
-							<img src={selectedDoaIcon + '.svg'} class="w-4" alt="" />
-							<p class="font-medium">{selectedDoaTitle}</p>
+							<img src={selectedDoaIcon + '-white.svg'} class="w-4 inverted" alt="" />
+							<p class="font-medium text-white!">{selectedDoaTitle}</p>
 						</div>
 					</div>
 				</div>
@@ -947,12 +947,12 @@
 									{/if}
 								</p>
 							</div>
-							<p class="font-medium px-3">Total Dokumen</p>
+							<p class="font-medium text-white! px-3">Total Dokumen</p>
 						</div>
 					</div>
 					<div>
 						<div class="relative w-full items-center group h-full">
-							<img src="search.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
+							<img src="search-white.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
 							<Input type="text" ref={searchRef} placeholder="Cari..." class="bg-[#677787]! search w-full rounded-none border-transparent! placeholder:text-[#fff]/50 h-full pl-11! text-[#fff]! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
 						</div>
 					</div>
@@ -974,7 +974,7 @@
 					>
 						<div>
 							<div class="flex flex-row bg-[#677787] p-3.5 group">
-								<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
+								<img src="minimize-white.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 							</div>
 						</div>
 					</div>
@@ -988,7 +988,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Nomor</p>
 									{#if sortColumn === 'number'}
-										<img src="down.svg" class="w-2 absolute right-1 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 ms-1 relative right-1 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -996,7 +996,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">NIK</p>
 									{#if sortColumn === 'nik'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 mx-1 relative right-1 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -1004,7 +1004,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Nama</p>
 									{#if sortColumn === 'nama'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -1012,7 +1012,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Rev</p>
 									{#if sortColumn === 'revision'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -1020,7 +1020,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Tanggal</p>
 									{#if sortColumn === 'date'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -1028,7 +1028,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Valid</p>
 									{#if sortColumn === 'date2'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -1036,7 +1036,7 @@
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Judul</p>
 									{#if sortColumn === 'title'}
-										<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
+										<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirection === 'asc' ? '' : 'rotate-180'}" alt="" />
 									{/if}
 								</div>
 							</Table.Head>
@@ -1225,11 +1225,11 @@
 								{#snippet child({ props })}
 									<div {...props}>
 										<img src="date valid.svg" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-										<div class="border-0! rounded-0! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0 {selectedDoa.date2 ? '' : 'text-secondary/50!'}">{selectedDoa.date2 ? selectedDoa.date2.toString() : 'Pilih Tanggal'}</div>
+										<div class="border-0! rounded-0! focus:!border-[#000] shadow-none! focus:!ring-transparent focus:!ring-offset-0 {selectedDoa.date2 ? '' : 'text-secondary/50!'}">{selectedDoa.date2 ? selectedDoa.date2.toString() : 'Pilih Tanggal'}</div>
 									</div>
 								{/snippet}
 							</Popover.Trigger>
-							<Popover.Content class="mb-3! rounded-none! shadow-none! bg-[#f4efe7]! border-1! border-[#e1d5c5]! p-2!">
+							<Popover.Content class="mb-3! rounded-none! shadow-none! bg-[#fff]! border-1! border-[#000]! p-2!">
 								<Calendar
 									type="single"
 									bind:value={selectedDoa.date2}
@@ -1256,7 +1256,7 @@
 								<p title={subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'} class="text-base max-w-[19dvw] truncate {selectedDoa.type === '0' ? 'text-secondary/35!' : 'text-secondary!'}">{subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'}</p>
 								<!-- <img src="down.svg" class="w-2 pt-1" alt="" /> -->
 							</Select.Trigger>
-							<Select.Content class="mb-2! h-[50dvh]! rounded-none! shadow-none! border-0! bg-[#f4efe7]! border-1! border-[#e1d5c5]! p-0! z-[100]!">
+							<Select.Content class="mb-2! h-[50dvh]! rounded-none! shadow-none! border-0! bg-[#fff]! border-1! border-[#000]! p-0! z-[100]!">
 								<Select.Group>
 									<!-- <Select.Label>Fruits</Select.Label> -->
 									{#each subtypes as subtypes (subtypes.value)}
@@ -1358,8 +1358,8 @@
 				<div class="w-full flex justify-between">
 					<div>
 						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
-							<img src="users3.svg?f" class="w-4" alt="" />
-							<p class="font-medium">Daftar User</p>
+							<img src="users3-white.svg?f" class="w-4" alt="" />
+							<p class="font-medium text-white!">Daftar User</p>
 						</div>
 					</div>
 
@@ -1375,7 +1375,7 @@
 									{/if}
 								</p>
 								</div>
-								<p class="font-medium px-3">Total User</p>
+								<p class="font-medium text-white! px-3">Total User</p>
 							</div>
 						</div>
 						<div>
@@ -1384,7 +1384,7 @@
 							<div class="bg-secondary w-2 h-2 absolute -right-0.5 -top-0.5"></div>
 						</div> -->
 							<div class="relative w-full items-center group h-full">
-								<img src="search.svg" class="absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
+								<img src="search-white.svg" class="absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
 								<Input type="text" placeholder="Cari..." ref={searchRef} class="bg-[#677787]! search w-full rounded-none border-transparent! placeholder:text-[#fff]/50 h-full pl-11! text-[#fff]! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
 							</div>
 						</div>
@@ -1406,7 +1406,7 @@
 						>
 							<div>
 								<div class="flex flex-row bg-[#677787] p-3.5 group">
-									<img src="minimize.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
+									<img src="minimize-white.svg?a" class="w-3 group-hover:rotate-[180deg] transition-all duration-500" alt="" />
 								</div>
 							</div>
 						</div>
@@ -1420,15 +1420,15 @@
 									<div class="flex items-center gap-2 relative">
 										<p class="text-white!">Status</p>
 										{#if sortColumnUser === 'activated'}
-											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
+											<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
 									</div>
 								</Table.Head>
 								<Table.Head class="text-center! cursor-pointer " onclick={() => handleSortUser('username')}>
-									<div class="flex items-center justify-center gap-2 relative">
+									<div class="flex items-center justify-start gap-2 relative">
 										<p class="text-white!">NIK</p>
 										{#if sortColumnUser === 'username'}
-											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
+											<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
 									</div>
 								</Table.Head>
@@ -1436,7 +1436,7 @@
 									<div class="flex items-center gap-2 relative">
 										<p class="text-white!">Nama</p>
 										{#if sortColumnUser === 'configPenghasil'}
-											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
+											<img src="down-white.svg" class="w-4 mx-1 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
 									</div>
 								</Table.Head>
@@ -1445,7 +1445,7 @@
 									<div class="flex items-center gap-2 relative">
 										<p class="text-white!">User Level</p>
 										{#if sortColumnUser === 'userlevel_name'}
-											<img src="down.svg" class="w-2 absolute right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
+											<img src="down-white.svg" class="w-4 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
 									</div>
 								</Table.Head>
@@ -1474,7 +1474,7 @@
 												</div>
 											{/if}
 										</Table.Cell>
-										<Table.Cell class="text-center! w-1/8! select-text!">{userx.username}</Table.Cell>
+										<Table.Cell class="text-start! w-1/8! select-text!">{userx.username}</Table.Cell>
 										<Table.Cell class="select-text!">{userx.configPenghasil}</Table.Cell>
 										<Table.Cell class="w-1/6! select-text!">{userx.userlevel_name}</Table.Cell>
 										<div

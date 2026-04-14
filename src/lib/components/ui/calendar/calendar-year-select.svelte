@@ -36,7 +36,7 @@
 				aria-hidden="true"
 			>
 				{yearItems.find((item) => item.value === value)?.label || selectedYearItem.label}
-				<ChevronDownIcon color="#694b29" class="size-4" />
+				<ChevronDownIcon color="#000" class="size-4" />
 			</span>
 		{/snippet}
 	</CalendarPrimitive.YearSelect>

@@ -37,7 +37,7 @@
 				aria-hidden="true"
 			>
 				{monthItems.find((item) => item.value === value)?.label || selectedMonthItem.label}
-				<ChevronDownIcon color="#694b29" class="size-4 text-secondary!" />
+				<ChevronDownIcon color="#000" class="size-4 text-secondary!" />
 			</span>
 		{/snippet}
 	</CalendarPrimitive.MonthSelect>

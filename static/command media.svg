@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#5c4d3c" d="M3 21q-.825 0-1.412-.587T1 19V7q0-.425.288-.712T2 6t.713.288T3 7v12h16q.425 0 .713.288T20 20t-.288.713T19 21zm4-4q-.825 0-1.412-.587T5 15V4q0-.825.588-1.412T7 2h4.175q.4 0 .763.15t.637.425L14 4h7q.825 0 1.413.588T23 6v9q0 .825-.587 1.413T21 17zm0-2h14V6h-7.825l-2-2H7zm0 0V4zm6.25-3.5L12.1 10q-.15-.2-.4-.2t-.4.2l-1.675 2.2q-.2.25-.063.525t.463.275h7.95q.325 0 .462-.275t-.062-.525L15.95 9.025q-.15-.2-.4-.2t-.4.2z"/></svg>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+<svg width="256px" height="256px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+<g id="SVGRepo_iconCarrier"> <path d="M9.3 17.85C9.3 19.5897 7.8897 21 6.15 21C4.4103 21 3 19.5897 3 17.85C3 16.1103 4.4103 14.7 6.15 14.7H17.85C19.5897 14.7 21 16.1103 21 17.85C21 19.5897 19.5897 21 17.85 21C16.1103 21 14.7 19.5897 14.7 17.85V6.15C14.7 4.4103 16.1103 3 17.85 3C19.5897 3 21 4.4103 21 6.15C21 7.8897 19.5897 9.3 17.85 9.3H6.15C4.4103 9.3 3 7.8897 3 6.15C3 4.4103 4.4103 3 6.15 3C7.8897 3 9.3 4.4103 9.3 6.15V17.85Z" stroke="#000000" stroke-width="2"/> </g>
+</svg>
