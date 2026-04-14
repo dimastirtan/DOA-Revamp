@@ -1046,7 +1046,7 @@
 					<Table.Body class={loadingDrawer ? 'hidden' : 'visible'}>
 						{#if filteredDoa}
 							{#each filteredDoa as doa (doa.no)}
-								<Table.Row class="group relative! border-0! hover:bg-secondary/10! hover:scale-[100.5%]! transition-all!">
+								<Table.Row class="group relative! border-0! hover:bg-[#fff]! hover:scale-[100.5%]! transition-all!">
 									<Table.Cell class="font-medium! py-3! pl-4! w-1! select-text!">{doa.number || '-'}</Table.Cell>
 									<Table.Cell class="w-1! select-text!">{doa.nik || '-'}</Table.Cell>
 									<Table.Cell class="w-1! select-text!">{doa.nama || '-'}</Table.Cell>
@@ -1455,7 +1455,7 @@
 							{#if filteredUsers}
 								{#each filteredUsers as userx (userx.kuid)}
 									<!-- {"username":"160238","kuid":"c054e296693e2c4eb00c371ad632fdc4","password":"6d2f4baaaee3f763980805bad0363546","userlevel":1,"provinsi":"","configPenghasil":"Dimas Septa","activated":"Y"}, -->
-									<Table.Row class="group relative! border-0! hover:bg-secondary/10! hover:scale-[100.5%]! transition-all!">
+									<Table.Row class="group relative! border-0! hover:bg-[#fff]! hover:scale-[100.5%]! transition-all!">
 										<Table.Cell class="font-medium pl-4! w-1! justify-center! items-center!">
 											{#if userx.userlevel == '0'}
 												<div class="bg-orange-500/10 py-0.5 flex items-center gap-1 px-1.5 text-center flex w-min">
