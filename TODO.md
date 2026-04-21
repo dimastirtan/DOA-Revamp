@@ -1,13 +1,15 @@
-# Fix Edit DOA Drawer Issues
+# Task: Add if statement to hide Valid field in DOA add/edit drawer for types other than CVE, AWO, ass
 
 ## Steps:
-- [x] Step 1: Update ScrollArea in mbukakTambahDoa drawer: fix height/flex for scroll without showing scrollbar, remove data-vaul-no-drag.
-- [x] Step 2: Update Drawer.Content sizing to h-dvh flex-col.
-- [x] Step 3: Add guard to prevent nested drawers (edit only opens if !mbukakDoa).
-- [x] Step 4: Test scroll + close functionality.
-- [x] Step 5: Mark complete + attempt_completion.
+- [x] 1. Create TODO.md with plan steps
+- [x] 2. Edit src/routes/dash/+page.svelte to conditionally show Valid section based on selectedDoa.type
+- [x] 3. Verify change with table logic match
+- [x] 4. Update TODO.md with completion
+- [x] 5. Test drawer behavior for add/edit
+- [x] 6. Final completion
 
-Current: Steps 1-3 complete. Test with `bun dev`, open dash, edit DOA drawer: scroll works (invisible scrollbar), closes cleanly without stuck.
-
-Task complete.
+## Status: Completed ✅
+- Added `{#if selectedDoa.type === 'CVE' || selectedDoa.type === 'AWO' || selectedDoa.type === 'ass'}` wrapper around Valid field in add/edit drawer.
+- Matches table conditions exactly.
+- Drawer now hides Valid for other types.
 

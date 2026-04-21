@@ -992,6 +992,7 @@
 									{/if}
 								</div>
 							</Table.Head>
+{#if filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass')}
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('nik')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">NIK</p>
@@ -1000,6 +1001,8 @@
 									{/if}
 								</div>
 							</Table.Head>
+						{/if}
+{#if filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass')}
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('nama')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Nama</p>
@@ -1008,6 +1011,7 @@
 									{/if}
 								</div>
 							</Table.Head>
+						{/if}
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('revision')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Rev</p>
@@ -1024,6 +1028,7 @@
 									{/if}
 								</div>
 							</Table.Head>
+{#if filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass' || doa.type === 'cer')}
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('date2')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Valid</p>
@@ -1032,6 +1037,7 @@
 									{/if}
 								</div>
 							</Table.Head>
+						{/if}
 							<Table.Head class="cursor-pointer " onclick={() => handleSort('title')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Judul</p>
@@ -1048,11 +1054,17 @@
 							{#each filteredDoa as doa (doa.no)}
 								<Table.Row class="group relative! border-0! hover:bg-[#fff]! hover:scale-[100.5%]! transition-all!">
 									<Table.Cell class="font-medium! py-3! pl-4! w-1! select-text!">{doa.number || '-'}</Table.Cell>
-									<Table.Cell class="w-1! select-text!">{doa.nik || '-'}</Table.Cell>
-									<Table.Cell class="w-1! select-text!">{doa.nama || '-'}</Table.Cell>
+{#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'}
+	<Table.Cell class="w-1! select-text!">{doa.nik || '-'}</Table.Cell>
+{/if}
+{#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'}
+	<Table.Cell class="w-1! select-text!">{doa.nama || '-'}</Table.Cell>
+{/if}
 									<Table.Cell class="w-1! select-text!">{doa.revision || '-'}</Table.Cell>
 									<Table.Cell class="w-1! select-text!">{doa.date && !doa.date.includes('0000') ? doa.date : '-'}</Table.Cell>
-									<Table.Cell class="w-1! select-text!">{doa.date2 && !doa.date2.includes('0000') ? doa.date2 : '-'}</Table.Cell>
+{#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'|| doa.type === 'cer'}
+	<Table.Cell class="w-1! select-text!">{doa.date2 && !doa.date2.includes('0000') ? doa.date2 : '-'}</Table.Cell>
+{/if}
 									<Table.Cell class="max-w-[15vw] truncate select-text!" title={doa.title}>{doa.title || '-'}</Table.Cell>
 									<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-all">
 										<div
@@ -1160,6 +1172,33 @@
 					</div>
 				</div>
 
+					<div class="flex flex-col gap-1">
+						<p class="font-medium">Tipe</p>
+						<!-- <div class="relative w-full items-center">
+						<img src="type.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
+						<Input type="text" placeholder="Pilih Tipe" class="w-full rounded-none bg-[#fff] border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+					</div> -->
+
+						<Select.Root type="single" name="favoriteFruit" bind:value={selectedDoa.type}>
+							<Select.Trigger placeholder="Pilih Tipe" class="flex! relative! pl-11! flex-row! bg-[#fff]! py-7! px-3! w-full! gap-3! group shadow-none! overflow-hidden! border-1! border-[#000]! rounded-none!">
+								<img src="type.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
+								<p title={subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'} class="text-base max-w-[19dvw] truncate {selectedDoa.type === '0' ? 'text-secondary/35!' : 'text-secondary!'}">{subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'}</p>
+								<!-- <img src="down.svg" class="w-2 pt-1" alt="" /> -->
+							</Select.Trigger>
+							<Select.Content class="mb-2! h-[50dvh]! rounded-none! shadow-none! border-0! bg-[#fff]! border-1! border-[#000]! p-0! z-[100]!">
+								<Select.Group>
+									<!-- <Select.Label>Fruits</Select.Label> -->
+									{#each subtypes as subtypes (subtypes.value)}
+										<Select.Item class="rounded-none shadow-none px-3 py-3 border-0 hover:bg-transparent! bg-transparent active:bg-transparent!" value={subtypes.value} label={subtypes.label}>
+											<img src="type.svg" class="w-3 ml-2 mr-2 group-hover:rotate-[-45deg] transition-all duration-500" alt="" />
+											<p class="text-base max-w-[19dvw] truncate" title={subtypes.label}>{subtypes.label}</p>
+										</Select.Item>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+						</Select.Root>
+					</div>
+
 				<div class="w-full pt-4 flex flex-col gap-2 pb-4">
 					<div class="flex flex-col gap-1">
 						<p class="font-medium">Judul</p>
@@ -1217,7 +1256,8 @@
 							</Popover.Content>
 						</Popover.Root>
 					</div>
-
+					
+					{#if selectedDoa.type === 'CVE' || selectedDoa.type === 'AWO' || selectedDoa.type === 'ass' || selectedDoa.type === 'cer'}
 					<div class="flex flex-col gap-3">
 						<p class="font-medium">Valid</p>
 						<Popover.Root bind:open={openValid}>
@@ -1242,33 +1282,7 @@
 							</Popover.Content>
 						</Popover.Root>
 					</div>
-
-					<div class="flex flex-col gap-1">
-						<p class="font-medium">Tipe</p>
-						<!-- <div class="relative w-full items-center">
-						<img src="type.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
-						<Input type="text" placeholder="Pilih Tipe" class="w-full rounded-none bg-[#fff] border-transparent! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
-					</div> -->
-
-						<Select.Root type="single" name="favoriteFruit" bind:value={selectedDoa.type}>
-							<Select.Trigger placeholder="Pilih Tipe" class="flex! relative! pl-11! flex-row! bg-[#fff]! py-7! px-3! w-full! gap-3! group shadow-none! overflow-hidden! border-1! border-[#000]! rounded-none!">
-								<img src="type.svg" class=" absolute top-1/2 left-3 h-4! w-4! -translate-y-1/2" alt="" />
-								<p title={subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'} class="text-base max-w-[19dvw] truncate {selectedDoa.type === '0' ? 'text-secondary/35!' : 'text-secondary!'}">{subtypes.find((t) => t.value === selectedDoa.type)?.label || 'Pilih Tipe'}</p>
-								<!-- <img src="down.svg" class="w-2 pt-1" alt="" /> -->
-							</Select.Trigger>
-							<Select.Content class="mb-2! h-[50dvh]! rounded-none! shadow-none! border-0! bg-[#fff]! border-1! border-[#000]! p-0! z-[100]!">
-								<Select.Group>
-									<!-- <Select.Label>Fruits</Select.Label> -->
-									{#each subtypes as subtypes (subtypes.value)}
-										<Select.Item class="rounded-none shadow-none px-3 py-3 border-0 hover:bg-transparent! bg-transparent active:bg-transparent!" value={subtypes.value} label={subtypes.label}>
-											<img src="type.svg" class="w-3 ml-2 mr-2 group-hover:rotate-[-45deg] transition-all duration-500" alt="" />
-											<p class="text-base max-w-[19dvw] truncate" title={subtypes.label}>{subtypes.label}</p>
-										</Select.Item>
-									{/each}
-								</Select.Group>
-							</Select.Content>
-						</Select.Root>
-					</div>
+					{/if}
 
 					<!-- <div class="flex w-full flex-col justify-center gap-1 text-left">
 					<p class="font-medium">Remarks</p>

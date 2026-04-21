@@ -72,7 +72,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					method: 'POST',
 					body: uploadFormData
 				});
-
+				console.log('Upload status:', uploadRes.status); // tambah ini
 				const rawResponse = await uploadRes.clone().text();
 				let uploadResult: any;
 				try {
@@ -96,6 +96,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					return json({ success: false, error: 'File upload failed: ' + uploadResult.error }, { status: 500 });
 				}
 			} catch (error: any) {
+				console.error('Upload fetch error:', error); // ini harusnya print di terminal
 				return json({ success: false, error: 'Upload server connection error: ' + error.message }, { status: 500 });
 			}
 		}
