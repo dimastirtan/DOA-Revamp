@@ -1,15 +1,8 @@
-# Task: Add if statement to hide Valid field in DOA add/edit drawer for types other than CVE, AWO, ass
+# TODO: Fix DOA Upload Issues (Bun Ubuntu vs Windows/Dev)
 
 ## Steps:
-- [x] 1. Create TODO.md with plan steps
-- [x] 2. Edit src/routes/dash/+page.svelte to conditionally show Valid section based on selectedDoa.type
-- [x] 3. Verify change with table logic match
-- [x] 4. Update TODO.md with completion
-- [x] 5. Test drawer behavior for add/edit
-- [x] 6. Final completion
-
-## Status: Completed ✅
-- Added `{#if selectedDoa.type === 'CVE' || selectedDoa.type === 'AWO' || selectedDoa.type === 'ass'}` wrapper around Valid field in add/edit drawer.
-- Matches table conditions exactly.
-- Drawer now hides Valid for other types.
-
+### 1. Create .env with PUBLIC_UPLOAD_URL ✅
+### 2. Edit src/routes/-doa/w/+server.ts: Add env URL, retry logic (3x), logging ✅
+### 3. Edit src/routes/dash/+page.svelte: Remove setTimeout, add retry button/logic, validation [PENDING]
+### 4. Test: bun run build && bun run preview; deploy Ubuntu, check logs [PENDING]
+### 5. Update TODO with results [PENDING]

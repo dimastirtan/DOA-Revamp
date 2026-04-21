@@ -4,6 +4,7 @@ import { db } from '$lib/server/db';
 import { standard } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import * as yup from 'yup';
+import { PUBLIC_UPLOAD_URL } from '$env/static/public';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	let data: any;
@@ -21,7 +22,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	console.log(data);
 
 	if (data.d && data.e) {
-    return await db
+		return await db
         .update(standard)
         .set({ remark: 'D' })
         .where(eq(standard.no, data.e.no))
@@ -68,12 +69,32 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				uploadFormData.append('number', entry.number);
 				uploadFormData.append('revision', entry.revision.replace(/\//g, '_'));
 
-				const uploadRes = await fetch('http://10.1.95.76/webdoa/up.php', {
-					method: 'POST',
-					body: uploadFormData
-				});
-				console.log('Upload status:', uploadRes.status); // tambah ini
+				const uploadUrl = PUBLIC_UPLOAD_URL || 'http://10.1.95.76/webdoa/up.php';
+
+				// Retry logic for upload
+				const uploadWithRetry = async (attempt: number = 1): Promise<Response> => {
+					try {
+						console.log(`Upload attempt ${attempt}, file: ${file.name} (${file.size} bytes)`);
+						const res = await fetch(uploadUrl, {
+							method: 'POST',
+							body: uploadFormData
+						});
+						return res;
+					} catch (error) {
+						if (attempt < 3) {
+							const delay = 500 * Math.pow(2, attempt - 1);
+							console.log(`Upload attempt ${attempt} failed, retrying in ${delay}ms:`, error);
+							await new Promise(resolve => setTimeout(resolve, delay));
+							return uploadWithRetry(attempt + 1);
+						}
+						throw error;
+					}
+				};
+
+				const uploadRes = await uploadWithRetry();
+				console.log('Upload status:', uploadRes.status, 'headers:', Object.fromEntries(uploadRes.headers.entries()));
 				const rawResponse = await uploadRes.clone().text();
+				console.log('Raw response length:', rawResponse.length, 'content:', rawResponse.slice(0, 500) + (rawResponse.length > 500 ? '...' : ''));
 				let uploadResult: any;
 				try {
 					uploadResult = await uploadRes.json();
