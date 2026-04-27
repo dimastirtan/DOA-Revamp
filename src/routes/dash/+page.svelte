@@ -60,9 +60,6 @@
 	let loadingDrawer = $state(false);
 	let loadingInput = $state(false);
 	let fileInputDoa = $state<FileList | null>(null);
-	let uploadError = $state('');
-	let retryCount = $state(0);
-	let canRetry = $derived(retryCount < 2);
 	// let dateNow = $state();
 
 	const group = [
@@ -358,16 +355,9 @@
 		}, 1000);
 	};
 
-	const fDoa = async (d: boolean = false, isRetry: boolean = false) => {
-		if (fileInputDoa && fileInputDoa.length > 0) {
-			const file = fileInputDoa[0];
-			if (file.size > 10 * 1024 * 1024) {
-				tos('exclamation.svg', 'Gagal', 'File terlalu besar (max 10MB)');
-				return;
-			}
-		}
+	const fDoa = async (d: boolean = false) => {
 		loadingInput = true;
-		uploadError = '';
+		setTimeout(async () => {
 			let body: any;
 			// let headers: any = {};
 
