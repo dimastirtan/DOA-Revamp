@@ -294,7 +294,7 @@
 				selectedDoa.date = undefined;
 			}
 
-			if (selectedDoa.date2 && typeof selectedDoa.date2 === 'string' && !selectedDoa.date2.includes('0000')) {
+			if (selectedDoa.date2 && typeof selectedDoa.date2 === 'string' && !selectedDoa.date2.includes('1970-01-01')) {
 				try {
 					selectedDoa.date2 = parseDate(selectedDoa.date2);
 				} catch (e) {
@@ -1063,7 +1063,7 @@
 									<Table.Cell class="w-1! select-text!">{doa.revision || '-'}</Table.Cell>
 									<Table.Cell class="w-1! select-text!">{doa.date && !doa.date.includes('0000') ? doa.date : '-'}</Table.Cell>
 {#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'|| doa.type === 'cer'}
-	<Table.Cell class="w-1! select-text!">{doa.date2 && !doa.date2.includes('0000') ? doa.date2 : '-'}</Table.Cell>
+	<Table.Cell>{doa.date2 && !doa.date2.includes('1970-01-01') ? doa.date2 : '-'}</Table.Cell>
 {/if}
 									<Table.Cell class="max-w-[15vw] truncate select-text!" title={doa.title}>{doa.title || '-'}</Table.Cell>
 									<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-all">

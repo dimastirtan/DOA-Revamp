@@ -140,6 +140,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 			if (entry.date2) {
 				standardData.date2 = `${entry.date2.year}-${String(entry.date2.month).padStart(2, '0')}-${String(entry.date2.day).padStart(2, '0')}`;
+			} else {
+				standardData.date2 = '1970-01-01';
 			}
 
 			if (data.i) {
