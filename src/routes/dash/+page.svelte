@@ -705,7 +705,7 @@
 		role="button"
 		tabindex="0"
 		onclick={() => {
-			fLogout();
+			window.confirm('Apakah kamu yakin ingin logout?') && fLogout();
 		}}
 		onkeydown={(e) => {
 			if (e.key === 'Enter' || e.key === ' ') {
@@ -1299,7 +1299,7 @@
 						class="flex w-full justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group"
 						role="button"
 						tabindex="0"
-						onclick={() => fDoa(false)}
+						onclick={() => window.confirm('Apakah anda yakin data sudah sesuai?') && fDoa(false)}
 						onkeydown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
@@ -1320,7 +1320,7 @@
 						class="flex w-1/3 justify-center items-center py-4 text-center bg-red-900 p-2 px-3 gap-2 group"
 						role="button"
 						tabindex="0"
-						onclick={() => fDoa(true)}
+						onclick={() => window.confirm('Apakah anda yakin ingin menghapus ini? (ini tindakan ini tidak bisa dibatalkan)') && fDoa(true)}
 						onkeydown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
@@ -1338,7 +1338,7 @@
 						class="flex w-2/3 justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group"
 						role="button"
 						tabindex="0"
-						onclick={() => fDoa(false)}
+						onclick={() => window.confirm('Apakah anda yakin data sudah benar?') && fDoa(false)}
 						onkeydown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
@@ -1649,7 +1649,7 @@
 					class="flex w-1/3 justify-center items-center py-4 text-center bg-red-900 p-2 px-3 gap-2 group"
 					role="button"
 					tabindex="0"
-					onclick={() => fUser(true)}
+					onclick={() => window.confirm('Apakah anda yakin ingin menghapus ini? (ini tindakan ini tidak bisa dibatalkan)') && fUser(true)}
 					onkeydown={(e) => {
 						if (e.key === 'Enter' || e.key === ' ') {
 							e.preventDefault();
@@ -1667,7 +1667,7 @@
 					class="flex w-2/3 justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group"
 					role="button"
 					tabindex="0"
-					onclick={() => fUser(false)}
+					onclick={() => window.confirm('Apakah anda yakin dengan perubahan ini?') && fUser(false)}
 					onkeydown={(e) => {
 						if (e.key === 'Enter' || e.key === ' ') {
 							e.preventDefault();
