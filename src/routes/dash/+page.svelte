@@ -350,7 +350,7 @@
 				fUsers();
 			} else {
 				loadingInput = false;
-				tos('exclamation.svg', 'Gagal', 'Periksa kembali data yang kamu masukkan.');
+				tos('exclamation.svg', 'Gagal', 'Periksa kembali data yang anda masukkan.');
 			}
 		}, 1000);
 	};
@@ -386,11 +386,11 @@
 				} else if (mbukakSearch) {
 					fDoas(searchDoa, '');
 				}
-				tos('exclamation.svg', 'Berhasil', 'DOA kamu sukses masuk ke database.');
+				tos('exclamation.svg', 'Berhasil', 'DOA anda sukses masuk ke database.');
 			} else {
 				loadingInput = false;
 				const res = await response.json();
-				tos('exclamation.svg', 'Gagal', res.error || 'Periksa kembali data yang kamu masukkan.');
+				tos('exclamation.svg', 'Gagal', res.error || 'Periksa kembali data yang anda masukkan.');
 			}
 			fileInputDoa = null;
 		}, 200);
@@ -705,7 +705,7 @@
 		role="button"
 		tabindex="0"
 		onclick={() => {
-			window.confirm('Apakah kamu yakin ingin logout?') && fLogout();
+			window.confirm('Apakah anda yakin ingin logout?') && fLogout();
 		}}
 		onkeydown={(e) => {
 			if (e.key === 'Enter' || e.key === ' ') {
