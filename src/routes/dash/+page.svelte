@@ -1557,13 +1557,13 @@
 						tabindex="0"
 						onclick={() => {
 							$mainTitle = 'Daftar User';
-							mbukakTambahDoa = false;
+							mbukakEditUser = false;
 						}}
 						onkeydown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
 								e.preventDefault();
 								$mainTitle = 'Daftar User';
-								mbukakTambahDoa = false;
+								mbukakEditUser = false;
 							}
 						}}
 					>
