@@ -409,7 +409,7 @@
 			type="button"
 			class="w-full"
 			onclick={() => {
-				fRegister();
+				window.confirm('Apakah anda yakin?') && fRegister();
 			}}
 		>
 			<div class="flex w-full justify-center items-center py-4 text-center bg-secondary p-2 px-3 gap-2 group">
