@@ -193,6 +193,25 @@
 		}
 	});
 
+	const logActivity = async (doa: any) => {
+		try {
+			await fetch('/-doa/log', {
+				method:  'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body:    JSON.stringify({
+					nmdoc:  doa.number || '-',
+					// Simpan title dokumen langsung — log jadi immutable
+					// walau dokumen diedit/dihapus, log tetap tampilkan judul aslinya
+					title:  doa.title  || '-',
+					rev:    doa.revision || '-',
+				})
+			});
+		} catch (e) {
+			console.error('logActivity failed:', e);
+		}
+	};
+ 
+
 	onMount(async () => {
 		const Headroom = (await import('headroom.js')).default;
 		new Headroom(navbar, {
@@ -378,15 +397,21 @@
 			});
 
 			if (response.ok) {
-				loadingInput = false;
-				mbukakTambahDoa = false;
-				fDoas('', '');
-				if (mbukakDoa) {
-					fDoas('', selectedDoaType);
-				} else if (mbukakSearch) {
-					fDoas(searchDoa, '');
+				if (d) {
+					await logActivity(selectedDoa);
+				} else {
+					await logActivity(selectedDoa);
 				}
-				tos('exclamation.svg', 'Berhasil', 'DOA anda sukses masuk ke database.');
+			
+			loadingInput = false;
+			mbukakTambahDoa = false;
+			fDoas('', '');
+			if (mbukakDoa) {
+				fDoas('', selectedDoaType);
+			} else if (mbukakSearch) {
+				fDoas(searchDoa, '');
+			}
+			tos('exclamation.svg', 'Berhasil', 'DOA anda sukses masuk ke database.');
 			} else {
 				loadingInput = false;
 				const res = await response.json();
@@ -639,6 +664,22 @@
 		>
 			<img src="users2.svg?c" class="w-5 group-hover:rotate-[24deg] transition-all duration-500" alt="" />
 		</div>
+			<div
+		class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group"
+		role="button"
+		tabindex="0"
+		onclick={() => {
+			goto('/dash/log');
+		}}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				goto('/dash/log');
+			}
+		}}
+		>
+			<img src="logs.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
+		</div>
 	{/if}
 	<Popover.Root bind:open={mbukakSearch}>
 		<Popover.Trigger class="flex! flex-row! bg-[#fff]! p-2! px-3! gap-2! group">
@@ -699,7 +740,6 @@
 			</div>
 		</Popover.Content>
 	</Popover.Root>
-
 	<div
 		class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group"
 		role="button"
@@ -1093,11 +1133,25 @@
 											<div
 												role="button"
 												tabindex="0"
-												onclick={() => window.open(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM') ? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}` : `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`, '_blank')}
-												onkeydown={(e) => {
+												onclick={async () => {
+													await logActivity(doa);
+													window.open(
+														selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM')
+															? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
+															: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+														'_blank'
+													);
+												}}
+												onkeydown={async (e) => {
 													if (e.key === 'Enter' || e.key === ' ') {
 														e.preventDefault();
-														window.open(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM') ? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}` : `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`, '_blank');
+														await logActivity(doa);
+														window.open(
+															selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM')
+																? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
+																: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+															'_blank'
+														);
 													}
 												}}
 												class="bg-primary flex p-1.5 aspect-square border-1 border-secondary cursor-pointer"
