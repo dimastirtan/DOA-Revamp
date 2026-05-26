@@ -397,11 +397,6 @@
 			});
 
 			if (response.ok) {
-				if (d) {
-					await logActivity(selectedDoa);
-				} else {
-					await logActivity(selectedDoa);
-				}
 			
 			loadingInput = false;
 			mbukakTambahDoa = false;
@@ -664,6 +659,8 @@
 		>
 			<img src="users2.svg?c" class="w-5 group-hover:rotate-[24deg] transition-all duration-500" alt="" />
 		</div>
+		{/if}
+		{#if roleEditDoa}
 			<div
 		class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group"
 		role="button"
@@ -680,7 +677,7 @@
 		>
 			<img src="logs.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
 		</div>
-	{/if}
+		{/if}
 	<Popover.Root bind:open={mbukakSearch}>
 		<Popover.Trigger class="flex! flex-row! bg-[#fff]! p-2! px-3! gap-2! group">
 			<img src="search.svg" class="w-4 group-hover:rotate-[90deg] transition-all duration-500" alt="" />
@@ -927,7 +924,7 @@
 					</div>
 
 					<div>
-						<div class="flex flex-row bg-[#677787] p-2 px-3 gap-2 group max-w-106">
+						<div class="flex flex-row bg-[#677787] p-2 px-3 mr-2 gap-2 group">
 							<img src={selectedDoaIcon + '-white.svg'} class="w-4 inverted" alt="" />
 							<p class="font-medium text-white!">{selectedDoaTitle}</p>
 						</div>
@@ -1032,8 +1029,7 @@
 									{/if}
 								</div>
 							</Table.Head>
-{#if filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass')}
-							<Table.Head class="cursor-pointer " onclick={() => handleSort('nik')}>
+							<Table.Head class="cursor-pointer {filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass') ? '' : 'hidden'}" onclick={() => handleSort('nik')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">NIK</p>
 									{#if sortColumn === 'nik'}
@@ -1041,9 +1037,7 @@
 									{/if}
 								</div>
 							</Table.Head>
-						{/if}
-{#if filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass')}
-							<Table.Head class="cursor-pointer " onclick={() => handleSort('nama')}>
+							<Table.Head class="cursor-pointer {filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass') ? '' : 'hidden'}" onclick={() => handleSort('nama')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Nama</p>
 									{#if sortColumn === 'nama'}
@@ -1051,8 +1045,7 @@
 									{/if}
 								</div>
 							</Table.Head>
-						{/if}
-							<Table.Head class="cursor-pointer " onclick={() => handleSort('revision')}>
+							<Table.Head class="cursor-pointer" onclick={() => handleSort('revision')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Rev</p>
 									{#if sortColumn === 'revision'}
@@ -1060,7 +1053,7 @@
 									{/if}
 								</div>
 							</Table.Head>
-							<Table.Head class="cursor-pointer " onclick={() => handleSort('date')}>
+							<Table.Head class="cursor-pointer" onclick={() => handleSort('date')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Tanggal</p>
 									{#if sortColumn === 'date'}
@@ -1068,8 +1061,7 @@
 									{/if}
 								</div>
 							</Table.Head>
-{#if filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass' || doa.type === 'cer')}
-							<Table.Head class="cursor-pointer " onclick={() => handleSort('date2')}>
+							<Table.Head class="cursor-pointer {filteredDoa.some(doa => doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass' || doa.type === 'cer') ? '' : 'hidden'}" onclick={() => handleSort('date2')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Valid</p>
 									{#if sortColumn === 'date2'}
@@ -1077,8 +1069,7 @@
 									{/if}
 								</div>
 							</Table.Head>
-						{/if}
-							<Table.Head class="cursor-pointer " onclick={() => handleSort('title')}>
+							<Table.Head class="cursor-pointer" onclick={() => handleSort('title')}>
 								<div class="flex items-center gap-2 relative">
 									<p class="text-white!">Judul</p>
 									{#if sortColumn === 'title'}
@@ -1086,7 +1077,6 @@
 									{/if}
 								</div>
 							</Table.Head>
-							<!-- <Table.Head class="text-end pr-4">-</Table.Head> -->
 						</Table.Row>
 					</Table.Header>
 					<Table.Body class={loadingDrawer ? 'hidden' : 'visible'}>
@@ -1094,17 +1084,17 @@
 							{#each filteredDoa as doa (doa.no)}
 								<Table.Row class="group relative! border-0! hover:bg-[#fff]! hover:scale-[100.5%]! transition-all!">
 									<Table.Cell class="font-medium! py-3! pl-4! w-1! select-text!">{doa.number || '-'}</Table.Cell>
-{#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'}
-	<Table.Cell class="w-1! select-text!">{doa.nik || '-'}</Table.Cell>
-{/if}
-{#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'}
-	<Table.Cell class="w-1! select-text!">{doa.nama || '-'}</Table.Cell>
-{/if}
+									<Table.Cell class="w-1! select-text! {filteredDoa.some(d => d.type === 'CVE' || d.type === 'AWO' || d.type === 'ass') ? '' : 'hidden'}">
+										{doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass' ? (doa.nik || '-') : '-'}
+									</Table.Cell>
+									<Table.Cell class="w-1! select-text! {filteredDoa.some(d => d.type === 'CVE' || d.type === 'AWO' || d.type === 'ass') ? '' : 'hidden'}">
+										{doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass' ? (doa.nama || '-') : '-'}
+									</Table.Cell>
 									<Table.Cell class="w-1! select-text!">{doa.revision || '-'}</Table.Cell>
 									<Table.Cell class="w-1! select-text!">{doa.date && !doa.date.includes('0000') ? doa.date : '-'}</Table.Cell>
-{#if doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass'|| doa.type === 'cer'}
-	<Table.Cell>{doa.date2 && !doa.date2.includes('1970-01-01') ? doa.date2 : '-'}</Table.Cell>
-{/if}
+									<Table.Cell class="{filteredDoa.some(d => d.type === 'CVE' || d.type === 'AWO' || d.type === 'ass' || d.type === 'cer') ? '' : 'hidden'}">
+										{doa.type === 'CVE' || doa.type === 'AWO' || doa.type === 'ass' || doa.type === 'cer' ? (doa.date2 && !doa.date2.includes('1970-01-01') ? doa.date2 : '-') : '-'}
+									</Table.Cell>
 									<Table.Cell class="max-w-[15vw] truncate select-text!" title={doa.title}>{doa.title || '-'}</Table.Cell>
 									<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-all">
 										<div
@@ -1672,7 +1662,7 @@
 						<p class="font-medium">Password</p>
 						<div class="relative w-full items-center">
 							<img src="pass.svg?a" class=" absolute top-1/2 left-3 h-5! w-5! -translate-y-1/2" alt="" />
-							<Input bind:value={selectedUser.password} type="password" placeholder="Tidak Diubah" class="w-full rounded-none bg-primary/50 border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
+							<Input bind:value={selectedUser.password} type="password" placeholder="Tidak Diubah" class="w-full rounded-none bg-[#fff] border-[#000]! placeholder:text-secondary/35 py-7! pl-11! text-base! shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={false} />
 						</div>
 					</div>
 

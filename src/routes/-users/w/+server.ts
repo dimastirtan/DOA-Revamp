@@ -184,6 +184,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			}
 
 			const out = zip.generate({ type: 'nodebuffer' });
+			if (!fs.existsSync('docx')) {
+				fs.mkdirSync('docx', { recursive: true });
+			}
 			fs.writeFileSync('docx/' + data.r.nik + '.docx', out);
 			// await topdf.convert('pdf/' + data.r.nik + '.docx', 'pdf/' + data.r.nik + '.pdf');
 			// fs.unlinkSync('pdf/' + data.r.nik + '.docx');
