@@ -26,6 +26,7 @@ export const db = drizzle(
 		user: 'root',
 		password: '',
 		database: 'doan'
+
 	}),
 	{ schema, mode: 'default' }
 );

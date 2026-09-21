@@ -1,4 +1,4 @@
-import { mysqlTable, primaryKey, int, varchar, date, text, mysqlEnum, tinyint, datetime } from "drizzle-orm/mysql-core"
+import { mysqlTable, primaryKey, index, int, varchar, date, text, mysqlEnum, tinyint, datetime } from "drizzle-orm/mysql-core"
 
 export const form = mysqlTable("form", {
 	no: int().autoincrement().notNull(),
@@ -177,6 +177,12 @@ export const useraccounts = mysqlTable("useraccounts", {
 	provinsi: varchar("Provinsi", { length: 20 }).notNull(),
 	configPenghasil: varchar("Config_penghasil", { length: 50 }).notNull(),
 	activated: mysqlEnum("Activated", ['Y','N']).default('N').notNull(),
+	// Akumulasi poin quiz (cache — sumber kebenaran: SUM(quiz_attempt.points)).
+	// Kolom ini ditambahkan quiz.sql; jalankan SQL itu sebelum deploy build baru.
+	points: int("points").default(0).notNull(),
+	// Kode departemen (C_ORG) hasil backfill dari dittek.tmemp (docs/quiz_design.md).
+	// Disimpan penuh (mis. SE1000 ≠ SE2000 ≠ SE1300). NULL = NIK tidak ada di tmemp.
+	org: varchar("org", { length: 20 }),
 },
 (table) => [
 	primaryKey({ columns: [table.username], name: "useraccounts_username"}),
@@ -215,6 +221,53 @@ export const session = mysqlTable("session", {
 },
 (table) => [
 	primaryKey({ columns: [table.id], name: "session_id"}),
+]);
+
+// ── Quiz pemahaman prosedur (docs/quiz_design.md) ─────────────────────────
+// Soal = atribut procedure. KUNCI = standardNo (standard.no, PK PERMANEN),
+// BUKAN nomor dokumen — supaya soal tidak hilang saat nomor procedure diubah.
+// nmdoc hanya snapshot informatif. Soft-delete via remark='D'.
+export const quizQuestion = mysqlTable("quiz_question", {
+	no: int("no").autoincrement().notNull(),
+	standardNo: int("standard_no").notNull(),
+	nmdoc: varchar("nmdoc", { length: 100 }),
+	question: text("question").notNull(),
+	optionA: varchar("option_a", { length: 500 }).notNull(),
+	optionB: varchar("option_b", { length: 500 }).notNull(),
+	optionC: varchar("option_c", { length: 500 }).notNull(),
+	optionD: varchar("option_d", { length: 500 }).notNull(),
+	correct: mysqlEnum("correct", ['A', 'B', 'C', 'D']).notNull(),
+	remark: varchar("remark", { length: 50 }).default('Active').notNull(),
+	updatedBy: varchar("updated_by", { length: 50 }),
+	updatedAt: datetime("updated_at", { mode: "date" }),
+},
+(table) => [
+	primaryKey({ columns: [table.no], name: "quiz_question_no" }),
+	index("idx_qq_standard").on(table.standardNo),
+]);
+
+// Attempt = sekaligus log/history quiz. nmdoc/title/revision = SNAPSHOT BEKU
+// (log tetap menampilkan nomor lama walau dokumen di-rename/dihapus).
+// standardNo dipakai internal untuk mengambil soal saat penilaian.
+// points = poin yang dikreditkan attempt ini (aturan nilai tertinggi).
+export const quizAttempt = mysqlTable("quiz_attempt", {
+	no: int("no").autoincrement().notNull(),
+	username: varchar("username", { length: 50 }).notNull(),
+	nama: varchar("nama", { length: 50 }),
+	standardNo: int("standard_no").notNull(),
+	nmdoc: varchar("nmdoc", { length: 100 }).notNull(),
+	title: varchar("title", { length: 500 }),
+	revision: varchar("revision", { length: 10 }),
+	score: int("score").default(0).notNull(),
+	status: mysqlEnum("status", ['pending', 'lulus', 'gagal']).default('pending').notNull(),
+	points: int("points").default(0).notNull(),
+	startedAt: datetime("started_at", { mode: "date" }).notNull(),
+	finishedAt: datetime("finished_at", { mode: "date" }),
+},
+(table) => [
+	primaryKey({ columns: [table.no], name: "quiz_attempt_no" }),
+	index("idx_qa_user").on(table.username),
+	index("idx_qa_standard").on(table.standardNo),
 ]);
 
 export const registers = mysqlTable("registers", {

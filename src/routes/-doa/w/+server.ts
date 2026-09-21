@@ -4,14 +4,95 @@ import { db } from '$lib/server/db';
 import { standard } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import * as yup from 'yup';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { writeFile, readFile, unlink, mkdtemp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
+const execFileAsync = promisify(execFile);
+
+// ─── Path helpers ───────────────────────────────────────────────────────
+// Base path absolut yang dikembalikan up.php ($mappings).
+// Dokumen catia -> /data/edm/aplikasi/catia/..., form -> /data/aplikasi/webdoa/...
+const KNOWN_BASES = ['/data/edm/aplikasi/catia/', '/data/aplikasi/webdoa/'];
+const toRelative = (p: string) => {
+	for (const b of KNOWN_BASES) if (p.startsWith(b)) return p.slice(b.length);
+	return p.replace(/^\/+/, '');
+};
+
+// ─── PDF 1.4 conversion ────────────────────────────────────────────────
+// FPDI (watermark.php) hanya bisa baca PDF ≤ 1.4.
+// PDF dari tools modern biasanya 1.5–2.0 → FPDI gagal → blank/error.
+// Solusi: convert ke 1.4 waktu upload, sebelum kirim ke up.php.
+// Pakai Ghostscript (harus diinstall di container: apk add ghostscript).
+async function convertToPdf14(inputBuffer: Buffer): Promise<Buffer> {
+	// Cek apakah memang PDF
+	const header = inputBuffer.toString('ascii', 0, 5);
+	if (header !== '%PDF-') return inputBuffer; // bukan PDF, skip
+
+	// Cek versi — kalau sudah ≤ 1.4, skip konversi (hemat waktu)
+	const versionStr = inputBuffer.toString('ascii', 5, 8); // "1.4" / "1.7" / "2.0"
+	const version = parseFloat(versionStr);
+	if (!isNaN(version) && version <= 1.4) {
+		console.log('PDF sudah versi', versionStr, '— skip konversi');
+		return inputBuffer;
+	}
+
+	console.log('PDF versi', versionStr, '— converting ke 1.4...');
+	const dir = await mkdtemp(path.join(tmpdir(), 'pdf-'));
+	const inPath = path.join(dir, 'in.pdf');
+	const outPath = path.join(dir, 'out.pdf');
+
+	try {
+		await writeFile(inPath, inputBuffer);
+
+		await execFileAsync('gs', [
+			'-sDEVICE=pdfwrite',
+			'-dCompatibilityLevel=1.4',
+			'-dNOPAUSE', '-dBATCH', '-dQUIET',
+			// Jangan resample/compress gambar — pertahankan kualitas asli
+			'-dColorConversionStrategy=/LeaveColorUnchanged',
+			'-dDownsampleMonoImages=false',
+			'-dDownsampleGrayImages=false',
+			'-dDownsampleColorImages=false',
+			'-dAutoFilterColorImages=false',
+			'-dAutoFilterGrayImages=false',
+			'-dColorImageFilter=/FlateEncode',
+			'-dGrayImageFilter=/FlateEncode',
+			`-sOutputFile=${outPath}`,
+			inPath
+		], { timeout: 60000 }); // timeout 60s untuk PDF besar
+
+		const result = await readFile(outPath);
+		console.log('Konversi berhasil:', inputBuffer.length, '->', result.length, 'bytes');
+		return result;
+	} catch (err: any) {
+		console.error('Ghostscript gagal, upload PDF asli:', err.message);
+		return inputBuffer; // fallback: upload tanpa konversi
+	} finally {
+		await unlink(inPath).catch(() => {});
+		await unlink(outPath).catch(() => {});
+		// rmdir — dir kosong setelah file dihapus
+		const { rmdir } = await import('node:fs/promises');
+		await rmdir(dir).catch(() => {});
+	}
+}
+
+// ─── Upload with retry ─────────────────────────────────────────────────
 const uploadWithRetry = async (file: File, entry: any, retries = 3) => {
 	let lastError: any;
 
 	for (let i = 0; i < retries; i++) {
 		try {
 			console.log(`Upload attempt ${i + 1}`);
-			const buffer = Buffer.from(await file.arrayBuffer());
+			let buffer = Buffer.from(await file.arrayBuffer());
+
+			// Convert PDF ke versi 1.4 supaya kompatibel dgn FPDI/watermark.php
+			if (file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf') {
+				buffer = await convertToPdf14(buffer);
+			}
+
 			const blob = new Blob([buffer], { type: file.type || 'application/octet-stream' });
 
 			const uploadFormData = new FormData();
@@ -58,6 +139,7 @@ const uploadWithRetry = async (file: File, entry: any, retries = 3) => {
 	throw lastError;
 };
 
+// ─── POST handler ───────────────────────────────────────────────────────
 export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
 		let data: any;
@@ -116,7 +198,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 			if (file) {
 				const uploadResult = await uploadWithRetry(file, entry);
-				nmpath = uploadResult.path.replace('/data/edm/aplikasi/catia/', '');
+				// up.php bisa balikin base catia ATAU webdoa (untuk form).
+				// toRelative() menangani keduanya.
+				nmpath = toRelative(uploadResult.path);
 				if (uploadResult.is_pdf) {
 					pdf = nmpath;
 				}
@@ -142,6 +226,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				standardData.date2 = `${entry.date2.year}-${String(entry.date2.month).padStart(2, '0')}-${String(entry.date2.day).padStart(2, '0')}`;
 			} else {
 				standardData.date2 = '1970-01-01';
+			}
+
+			if (entry.type === 'Form') {
+				standardData.nmpath = pdf;
 			}
 
 			if (data.i) {

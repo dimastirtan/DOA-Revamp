@@ -210,7 +210,45 @@
 			console.error('logActivity failed:', e);
 		}
 	};
- 
+
+	// ── Buka dokumen + tawaran quiz ─────────────────────────────────────────
+	// Membuka PDF di tab baru (perilaku lama). Untuk PROCEDURE (pro/pro2) yang
+	// punya quiz aktif, munculkan modal tawaran mengerjakan quiz di tab ini.
+	let mbukakQuizPrompt = $state(false);
+	let quizPromptDoc = $state<{ ndm: string; title: string; revision: string } | null>(null);
+
+	const bukaDoa = async (doa: any) => {
+		await logActivity(doa);
+		window.open(
+			selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM')
+				? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
+				: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+			'_blank'
+		);
+
+		// Hanya procedure yang punya quiz DAN belum lulus — tawarkan kerjakan sekarang.
+		// Kalau user sudah lulus procedure ini, modal tidak muncul lagi.
+		if ((doa.type === 'pro' || doa.type === 'pro2') && doa.number) {
+			try {
+				const res = await fetch(`/-doa/quiz/available?ndm=${encodeURIComponent(doa.number)}`);
+				const j = await res.json();
+				if (j.success && j.available && !j.alreadyPassed) {
+					quizPromptDoc = j.doc;
+					mbukakQuizPrompt = true;
+				}
+			} catch (e) {
+				console.error('cek quiz gagal:', e);
+			}
+		}
+	};
+
+	const kerjakanQuiz = () => {
+		if (!quizPromptDoc) return;
+		const ndm = quizPromptDoc.ndm;
+		mbukakQuizPrompt = false;
+		goto(`/dash/quiz?ndm=${encodeURIComponent(ndm)}`);
+	};
+
 
 	onMount(async () => {
 		const Headroom = (await import('headroom.js')).default;
@@ -493,6 +531,14 @@
 	let sortColumnUser = $state('configPenghasil');
 	let sortDirectionUser = $state('asc');
 
+	// Filter departemen (kode C_ORG penuh, mis. SE1000). '' = semua.
+	let selectedOrgFilter = $state('');
+
+	// Daftar kode departemen unik yg muncul di antara user (utk dropdown filter).
+	let orgList = $derived(
+		[...new Set((data.users || []).map((u: any) => u.org).filter((o: any) => !!o))].sort()
+	);
+
 	const handleSortUser = (column: string) => {
 		if (sortColumnUser === column) {
 			sortDirectionUser = sortDirectionUser === 'asc' ? 'desc' : 'asc';
@@ -504,7 +550,8 @@
 
 	let filteredUsers = $derived(
 		(data.users || [])
-			.filter((user: any) => !search || user.username.toLowerCase().includes(search.toLowerCase()) || user.activated.toLowerCase().includes(search.toLowerCase()) || user.userlevel_name.toLowerCase().includes(search.toLowerCase()) || user.configPenghasil.toLowerCase().includes(search.toLowerCase()))
+			.filter((user: any) => !selectedOrgFilter || user.org === selectedOrgFilter)
+			.filter((user: any) => !search || user.username.toLowerCase().includes(search.toLowerCase()) || user.activated.toLowerCase().includes(search.toLowerCase()) || user.userlevel_name.toLowerCase().includes(search.toLowerCase()) || user.configPenghasil.toLowerCase().includes(search.toLowerCase()) || (user.org || '').toLowerCase().includes(search.toLowerCase()))
 			.sort((a: any, b: any) => {
 				if (!sortColumnUser) return 0;
 				const aValue = a[sortColumnUser] ? a[sortColumnUser].toString().toLowerCase() : '';
@@ -532,6 +579,58 @@
 
 <img class="fixed bottom-0 left-0 -z-50 h-1/2 invert" src="grad.svg" alt="" />
 <img class="fixed top-0 right-0 -z-50 h-1/2 -rotate-180 invert" src="grad.svg" alt="" />
+
+<!-- ── Modal tawaran quiz (muncul saat membuka procedure yg punya quiz) ─── -->
+{#if mbukakQuizPrompt && quizPromptDoc}
+	<!-- pointer-events-auto WAJIB: drawer (vaul) yang terbuka saat modal ini muncul
+	     menyetel body{pointer-events:none}, jadi modal harus meng-override sendiri
+	     supaya tombolnya bisa diklik. -->
+	<div
+		class="fixed inset-0 z-[99999] flex items-center justify-center pointer-events-auto"
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+		onclick={(e) => { if (e.target === e.currentTarget) mbukakQuizPrompt = false; }}
+	>
+		<div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+		<div class="relative bg-white shadow-xl w-full max-w-md mx-4">
+			<div class="bg-[#213C51] p-4 px-6">
+				<h3 class="text-lg font-semibold text-white!">Quiz Pemahaman Prosedur</h3>
+			</div>
+
+			<div class="p-6 flex flex-col gap-4">
+				<p>
+					Anda membuka procedure di tab baru. Sebagai bukti pemahaman, silakan
+					kerjakan quiz singkat (5 soal) untuk dokumen ini.
+				</p>
+				<div class="bg-black/5 p-3 flex flex-col gap-1">
+					<p class="font-semibold">{quizPromptDoc.title}</p>
+					<div class="flex gap-2">
+						<span class="text-sm bg-[#677787] text-white! px-2 py-0.5">{quizPromptDoc.ndm}</span>
+						<span class="text-sm bg-[#677787] text-white! px-2 py-0.5">Rev. {quizPromptDoc.revision}</span>
+					</div>
+				</div>
+				<p class="text-sm text-black/60">
+					Apakah Anda ingin menyelesaikan quiz-nya sekarang?
+				</p>
+			</div>
+
+			<div class="flex p-4 pt-0 gap-3">
+				<button
+					type="button"
+					class="flex-1 px-4 py-3 text-sm font-medium bg-[#677787] text-white! hover:bg-[#677787]/90 transition-colors"
+					onclick={() => (mbukakQuizPrompt = false)}
+				>Nanti Saja</button>
+				<button
+					type="button"
+					class="flex-1 px-4 py-3 text-sm font-medium bg-[#1a6b3c] text-white! hover:bg-[#1a6b3c]/90 transition-colors"
+					onclick={kerjakanQuiz}
+				>Kerjakan Sekarang</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <!-- @b floating button -->
 <div bind:this={navbar} class="fixed flex flex-row gap-2 bottom-3 left-1/2 -translate-x-1/2 p-2 bg-[#213C51] !drop-shadow-[0px_0px_10px_rgba(0,0,0,0.1)] z-[10]">
@@ -676,6 +775,23 @@
 		}}
 		>
 			<img src="logs.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
+		</div>
+			<div
+		class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group"
+		role="button"
+		tabindex="0"
+		title="Kelola Soal Quiz"
+		onclick={() => {
+			goto('/dash/quiz/soal');
+		}}
+		onkeydown={(e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				goto('/dash/quiz/soal');
+			}
+		}}
+		>
+			<img src="note.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
 		</div>
 		{/if}
 	<Popover.Root bind:open={mbukakSearch}>
@@ -1123,25 +1239,11 @@
 											<div
 												role="button"
 												tabindex="0"
-												onclick={async () => {
-													await logActivity(doa);
-													window.open(
-														selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM')
-															? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
-															: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
-														'_blank'
-													);
-												}}
-												onkeydown={async (e) => {
+												onclick={() => bukaDoa(doa)}
+												onkeydown={(e) => {
 													if (e.key === 'Enter' || e.key === ' ') {
 														e.preventDefault();
-														await logActivity(doa);
-														window.open(
-															selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM')
-																? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
-																: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
-															'_blank'
-														);
+														bukaDoa(doa);
 													}
 												}}
 												class="bg-primary flex p-1.5 aspect-square border-1 border-secondary cursor-pointer"
@@ -1446,6 +1548,18 @@
 								<Input type="text" placeholder="Cari..." ref={searchRef} class="bg-[#677787]! search w-full rounded-none border-transparent! placeholder:text-[#fff]/50 h-full pl-11! text-[#fff]! focus:!border-transparent shadow-none! focus:!ring-transparent focus:!ring-offset-0" autofocus={true} bind:value={search} />
 							</div>
 						</div>
+						<!-- Filter departemen (kode C_ORG dari dittek.tmemp) -->
+						<div>
+							<select
+								class="bg-[#677787] text-white! text-sm h-full px-3 border-0 outline-none cursor-pointer"
+								bind:value={selectedOrgFilter}
+							>
+								<option value="">Semua Departemen</option>
+								{#each orgList as org (org)}
+									<option value={org}>{org}</option>
+								{/each}
+							</select>
+						</div>
 						<div
 							class="flex gap-2"
 							role="button"
@@ -1498,11 +1612,26 @@
 										{/if}
 									</div>
 								</Table.Head>
-								<!-- <Table.Head>Organisasi</Table.Head> -->
+								<Table.Head class="cursor-pointer " onclick={() => handleSortUser('org')}>
+									<div class="flex items-center gap-2 relative">
+										<p class="text-white!">Departemen</p>
+										{#if sortColumnUser === 'org'}
+											<img src="down-white.svg" class="w-4 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
+										{/if}
+									</div>
+								</Table.Head>
 								<Table.Head class="cursor-pointer " onclick={() => handleSortUser('userlevel_name')}>
 									<div class="flex items-center gap-2 relative">
 										<p class="text-white!">User Level</p>
 										{#if sortColumnUser === 'userlevel_name'}
+											<img src="down-white.svg" class="w-4 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
+										{/if}
+									</div>
+								</Table.Head>
+								<Table.Head class="cursor-pointer " onclick={() => handleSortUser('points')}>
+									<div class="flex items-center gap-2 relative">
+										<p class="text-white!">Poin</p>
+										{#if sortColumnUser === 'points'}
 											<img src="down-white.svg" class="w-4 relative right-2 transition-all {sortDirectionUser === 'asc' ? '' : 'rotate-180'}" alt="" />
 										{/if}
 									</div>
@@ -1534,7 +1663,15 @@
 										</Table.Cell>
 										<Table.Cell class="text-start! w-1/8! select-text!">{userx.username}</Table.Cell>
 										<Table.Cell class="select-text!">{userx.configPenghasil}</Table.Cell>
+										<Table.Cell class="w-1/8! select-text!">
+											{#if userx.org}
+												<span class="text-xs bg-[#213C51]/10 text-[#213C51]! px-2 py-0.5 font-medium">{userx.org}</span>
+											{:else}
+												<span class="text-black/30">-</span>
+											{/if}
+										</Table.Cell>
 										<Table.Cell class="w-1/6! select-text!">{userx.userlevel_name}</Table.Cell>
+										<Table.Cell class="w-1/8! select-text!">{userx.points}</Table.Cell>
 										<div
 											class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-all"
 											role="button"
