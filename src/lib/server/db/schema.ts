@@ -179,10 +179,10 @@ export const useraccounts = mysqlTable("useraccounts", {
 	activated: mysqlEnum("Activated", ['Y','N']).default('N').notNull(),
 	// Akumulasi poin quiz (cache — sumber kebenaran: SUM(quiz_attempt.points)).
 	// Kolom ini ditambahkan quiz.sql; jalankan SQL itu sebelum deploy build baru.
-	points: int("points").default(0).notNull(),
+	//points: int("points").default(0).notNull(),
 	// Kode departemen (C_ORG) hasil backfill dari dittek.tmemp (docs/quiz_design.md).
 	// Disimpan penuh (mis. SE1000 ≠ SE2000 ≠ SE1300). NULL = NIK tidak ada di tmemp.
-	org: varchar("org", { length: 20 }),
+	//org: varchar("org", { length: 20 }),
 },
 (table) => [
 	primaryKey({ columns: [table.username], name: "useraccounts_username"}),

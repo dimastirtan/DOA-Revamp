@@ -216,6 +216,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				pdf: pdf
 			};
 
+			if (entry.type === 'form2' || entry.type === 'form') {
+				standardData.pdf = standardData.nmpath;
+			}
+
 			if (entry.date) {
 				standardData.date = `${entry.date.year}-${String(entry.date.month).padStart(2, '0')}-${String(entry.date.day).padStart(2, '0')}`;
 			} else {
@@ -226,10 +230,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				standardData.date2 = `${entry.date2.year}-${String(entry.date2.month).padStart(2, '0')}-${String(entry.date2.day).padStart(2, '0')}`;
 			} else {
 				standardData.date2 = '1970-01-01';
-			}
-
-			if (entry.type === 'Form') {
-				standardData.nmpath = pdf;
 			}
 
 			if (data.i) {
