@@ -1,0 +1,20 @@
+/* Kustomisasi keamanan doa-revamp: lapisan watermark identitas di tiap halaman.
+   File terpisah (bukan inline) supaya patuh CSP viewer PDF.js (script/style 'self'). */
+.multi-watermark {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	overflow: hidden;
+	z-index: 5;
+}
+
+.multi-watermark span {
+	position: absolute;
+	transform: rotate(-30deg);
+	transform-origin: center;
+	color: rgba(200, 0, 0, 0.16);
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+	user-select: none;
+}
