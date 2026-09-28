@@ -219,10 +219,13 @@ kelihatan di bar bawah untuk admin (browsing) — menunggu arah dari user.
   proxy `-doa/pdf` (unmapped → 403), homepage per divisi (dropdown jadi label
   divisi, Aircraft/Non-Aircraft disembunyikan), label userlevel 6–9. Mapping
   sementara via SQL sampai Fase 4.
-- ⏳ **Fase 4 — Dashboard Kelola Divisi**: UI admin/controller kelola mapping.
-  (Bisa barengan Fase 3; sampai jadi, mapping diisi via SQL sementara.)
+- ✅ **Fase 4 — Dashboard Kelola Divisi** (SELESAI lokal, branch `divisi-wip`
+  commit `51798aa`): halaman `/dash/divisi` (ikon di bar bawah, hanya admin(-1)/
+  controller(5)); tabel procedure (pro+pro2) + kolom centang PM/MR/HC/DP;
+  endpoint `/-doa/divisi` GET (paginated+search) & POST toggle (check=insert/
+  reactivate, uncheck=soft-delete, re-check tanpa duplikat). Simpan langsung.
 
-Urutan aman: **1 → 2 → 3 → 4**. Fase 1 & 2 sudah jalan di lokal.
+Urutan aman: **1 → 2 → 3 → 4**. **Semua fase (1–4) sudah jalan di lokal.**
 
 > Catatan Fase 2: yang BELUM ditutup = buka URL proxy `/-doa/pdf` langsung di tab
 > baru (masih dapat PDF mentah yang bisa diprint/download di luar viewer). Ini
