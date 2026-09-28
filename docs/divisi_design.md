@@ -213,8 +213,12 @@ kelihatan di bar bawah untuk admin (browsing) — menunggu arah dari user.
   `0b3a774`): `window.print` no-op (di-assert ulang sesudah PDF.js), Ctrl+P/S
   diblok (capture), `@media print` mengosongkan hasil cetak di viewer & halaman
   induk. **Belum termasuk** token proxy anti buka-URL-langsung (menyusul, lihat §6).
-- ⏳ **Fase 3 — Role divisi**: userlevel 6–9, tabel `procedure_division`, cabang
-  `-doa/r`, otorisasi proxy, homepage per divisi, label userlevel.
+- ✅ **Fase 3 — Role divisi** (SELESAI lokal, branch `divisi-wip` commit
+  `ac2fd03`): userlevel 6–9, tabel `procedure_division` (+`divisi.sql`),
+  cabang `-doa/r` (single-view divisi, PROCEDURE mapped pro+pro2), otorisasi
+  proxy `-doa/pdf` (unmapped → 403), homepage per divisi (dropdown jadi label
+  divisi, Aircraft/Non-Aircraft disembunyikan), label userlevel 6–9. Mapping
+  sementara via SQL sampai Fase 4.
 - ⏳ **Fase 4 — Dashboard Kelola Divisi**: UI admin/controller kelola mapping.
   (Bisa barengan Fase 3; sampai jadi, mapping diisi via SQL sementara.)
 
