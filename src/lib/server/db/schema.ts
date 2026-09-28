@@ -270,6 +270,22 @@ export const quizAttempt = mysqlTable("quiz_attempt", {
 	index("idx_qa_standard").on(table.standardNo),
 ]);
 
+// ── Fitur role divisi (docs/divisi_design.md) ─────────────────────────────
+// Pemetaan procedure -> divisi (many-to-many). division = userlevel divisi
+// (6=Program Management, 7=Manajemen Resiko, 8=Human Capital, 9=Direktorat
+// Produksi). Dikunci ke standard.no (PK permanen). Soft-delete remark='D'.
+export const procedureDivision = mysqlTable("procedure_division", {
+	no: int("no").autoincrement().notNull(),
+	standardNo: int("standard_no").notNull(),
+	division: int("division").notNull(),
+	remark: varchar("remark", { length: 50 }).default('Active').notNull(),
+},
+(table) => [
+	primaryKey({ columns: [table.no], name: "procedure_division_no" }),
+	index("idx_pd_standard").on(table.standardNo),
+	index("idx_pd_division").on(table.division),
+]);
+
 export const registers = mysqlTable("registers", {
 	email: varchar({ length: 100 }).notNull(),
 	nama: varchar({ length: 100 }).notNull(),

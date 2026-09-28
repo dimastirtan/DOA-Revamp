@@ -1,4 +1,7 @@
 import type { RequestHandler } from './$types';
+import { db } from '$lib/server/db';
+import { standard } from '$lib/server/db/schema';
+import { sql } from 'drizzle-orm';
 
 // GET /-doa/pdf?nmpath=..&jdl=..&form=0|1&pdf=..
 // Proxy same-origin: server mengambil PDF dari server dokumen (watermark.php untuk
@@ -22,6 +25,23 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 	if (!nmpath && !pdf) {
 		return new Response('Dokumen tidak valid.', { status: 400 });
+	}
+
+	// Otorisasi divisi (userlevel 6-9): hanya boleh membuka procedure (pro/pro2)
+	// yang dipetakan ke divisinya. Menutup akses via URL yang di-tamper.
+	// Lihat docs/divisi_design.md §4c.
+	const lvl = locals.user.userlevel;
+	if (typeof lvl === 'number' && lvl >= 6) {
+		const allowed = await db
+			.select({ no: standard.no })
+			.from(standard)
+			.where(
+				sql`${standard.nmpath} = ${nmpath} AND ${standard.type} IN ('pro', 'pro2') AND ${standard.no} IN (SELECT standard_no FROM procedure_division WHERE division = ${lvl} AND remark <> 'D')`
+			)
+			.limit(1);
+		if (allowed.length === 0) {
+			return new Response('Akses ditolak untuk divisi Anda.', { status: 403 });
+		}
 	}
 
 	// Bangun URL upstream (kuid dari session).

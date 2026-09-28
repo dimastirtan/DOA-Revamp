@@ -4,6 +4,15 @@ import { db } from '$lib/server/db';
 import { standard } from '$lib/server/db/schema';
 import { sql } from 'drizzle-orm';
 
+// Role divisi (docs/divisi_design.md). userlevel divisi = kunci divisi.
+const DIVISI_LABEL: Record<number, string> = {
+	6: 'Program Management',
+	7: 'Manajemen Resiko',
+	8: 'Human Capital',
+	9: 'Direktorat Produksi'
+};
+const isDivisi = (lvl: unknown): lvl is number => typeof lvl === 'number' && lvl >= 6;
+
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const user = locals.user;
 	const userlevel = user?.userlevel;
@@ -29,6 +38,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			whereClause = sql`${whereClause} AND ${standard.type} IN ('cmd', 'man', 'pro', 'wi', 'wa', 'WA', 'WA ')`;
 		} else if (userlevel === 3) {
 			whereClause = sql`${whereClause} AND ${standard.type} IN ('cer2', 'man2', 'pro2', 'wi2', 'doc2', 'cp', 'tm', 'qp2', 'QP2', '41N', 'form2')`;
+		} else if (isDivisi(userlevel)) {
+			// Divisi: hanya procedure (pro/pro2) yang dipetakan ke divisinya.
+			whereClause = sql`${whereClause} AND ${standard.type} IN ('pro', 'pro2') AND ${standard.no} IN (SELECT standard_no FROM procedure_division WHERE division = ${userlevel} AND remark <> 'D')`;
 		}
 
 		const results = await db.select().from(standard).where(whereClause);
@@ -37,6 +49,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 	// Filter by type functionality (data.t)
 	if (data.t) {
+		if (isDivisi(userlevel)) {
+			// Divisi hanya punya satu "tipe" semu: 'divisi' = semua procedure
+			// (pro+pro2) yang dipetakan ke divisinya. Sentinel lain → kosong.
+			if (data.t !== 'divisi') return json([]);
+			const results = await db
+				.select()
+				.from(standard)
+				.where(
+					sql`${standard.type} IN ('pro', 'pro2') AND ${standard.remark} != 'D' AND ${standard.no} IN (SELECT standard_no FROM procedure_division WHERE division = ${userlevel} AND remark <> 'D')`
+				);
+			return json(results);
+		}
 		if (userlevel === 2) {
 			const allowed = ['cmd', 'man', 'pro', 'wi', 'wa', 'WA', 'WA '];
 			if (!allowed.includes(data.t)) return json([]);
@@ -50,6 +74,26 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.from(standard)
 			.where(sql`${standard.type} = ${data.t} AND ${standard.remark} != 'D'`);
 		return json(results);
+	}
+
+	// Divisi (userlevel 6-9): tampilan single "divisi", hanya kartu PROCEDURE
+	// berisi jumlah procedure yang dipetakan ke divisinya (pro+pro2).
+	if (isDivisi(userlevel)) {
+		const cnt = await db
+			.select({ c: sql<number>`count(*)` })
+			.from(standard)
+			.where(
+				sql`${standard.type} IN ('pro', 'pro2') AND ${standard.remark} <> 'D' AND ${standard.no} IN (SELECT standard_no FROM procedure_division WHERE division = ${userlevel} AND remark <> 'D')`
+			);
+		const total = Number(cnt[0]?.c ?? 0);
+		return json({
+			def: 'divisi',
+			single: true,
+			divisiLabel: DIVISI_LABEL[userlevel] ?? 'Divisi',
+			divisi: [{ name: 'PROCEDURE', type: 'divisi', total: String(total) }],
+			aircraft: [],
+			non_aircraft: []
+		});
 	}
 
 	// Default functionality (stats)

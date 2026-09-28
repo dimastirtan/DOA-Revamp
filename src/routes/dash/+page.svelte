@@ -38,6 +38,8 @@
 	let mbukakEditUser = $state(false);
 	let navbar = $state();
 	let value = $state('aircraft');
+	// Label divisi (userlevel 6-9) dari -doa/r; dipakai di dropdown bar bawah.
+	let divisiLabel = $state('');
 	let search = $state('');
 	let searchTotal = $state('');
 	let searchDoa = $state('');
@@ -62,10 +64,16 @@
 	let fileInputDoa = $state<FileList | null>(null);
 	// let dateNow = $state();
 
-	const group = [
-		{ icon: 'plane.svg', value: 'aircraft', label: 'Aircraft' },
-		{ icon: 'helic.svg', value: 'non_aircraft', label: 'Non Aircraft' }
-	];
+	// Grup "dunia dokumen" di bar bawah. User divisi (userlevel 6-9) TAK dapat
+	// Aircraft/Non-Aircraft — hanya label divisinya (dari -doa/r: divisiLabel).
+	let group = $derived(
+		typeof data.user?.userlevel === 'number' && data.user.userlevel >= 6
+			? [{ icon: 'helic.svg', value: 'divisi', label: divisiLabel || 'Divisi' }]
+			: [
+					{ icon: 'plane.svg', value: 'aircraft', label: 'Aircraft' },
+					{ icon: 'helic.svg', value: 'non_aircraft', label: 'Non Aircraft' }
+				]
+	);
 
 	let roleEditDoa = $derived(data.user?.userlevel == -1 || data.user?.userlevel == 5);
 	let roleUser = $derived(data.user?.userlevel == -1);
@@ -134,7 +142,11 @@
 		{ value: 1, label: 'DOA Personel' },
 		{ value: 2, label: 'Aircraft' },
 		{ value: 3, label: 'Non Aircraft' },
-		{ value: 5, label: 'Controller' }
+		{ value: 5, label: 'Controller' },
+		{ value: 6, label: 'Program Management' },
+		{ value: 7, label: 'Manajemen Resiko' },
+		{ value: 8, label: 'Human Capital' },
+		{ value: 9, label: 'Direktorat Produksi' }
 	];
 	// Meta = Manajemen njuk dadi opo?
 
@@ -400,6 +412,10 @@
 							if (user.userlevel == '2') return 'Aircraft';
 							if (user.userlevel == '3') return 'Non Aircraft';
 							if (user.userlevel == '5') return 'Controller';
+							if (user.userlevel == '6') return 'Program Management';
+							if (user.userlevel == '7') return 'Manajemen Resiko';
+							if (user.userlevel == '8') return 'Human Capital';
+							if (user.userlevel == '9') return 'Direktorat Produksi';
 							return '-';
 						})(),
 						activated: user.userlevel == '0' ? 'Aktivasi' : user.activated === 'Y' ? 'Aktif' : user.activated === 'N' ? 'Nonaktif' : user.activated
@@ -494,6 +510,7 @@
 						loadingDoa = false;
 						data = { ...data, doa: res };
 						value = res.def;
+						divisiLabel = res.divisiLabel || '';
 						console.log(data);
 					}
 				});
@@ -948,7 +965,7 @@
 					<p class="font-medium text-white!">Jumlah</p>
 				</div>
 				{#if data.doa}
-					{#each data.doa[value === 'non_aircraft' ? 'non_aircraft' : 'aircraft'] || [] as item (item.name)}
+					{#each data.doa[value === 'non_aircraft' ? 'non_aircraft' : value === 'divisi' ? 'divisi' : 'aircraft'] || [] as item (item.name)}
 						{#if item.sub}
 							<div class="withsub">
 								<div class="flex justify-between w-full p-2 px-6">
