@@ -20,6 +20,10 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		const search   = (url.searchParams.get('search') ?? '').trim();
 		const offset   = (page - 1) * limit;
 
+		// Divisi = kolom org di useraccounts, diambil live via JOIN (bukan disimpan
+		// ke history → tak nambah skema). COLLATE dipakai karena history.username
+		// (latin1_swedish_ci) ≠ useraccounts.username (latin1_general_ci).
+		// Lihat docs/divisi_design.md §4d.
 		const BASE = `
 			SELECT
 				h.no,
@@ -28,8 +32,11 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 				h.nama,
 				h.nmdoc,
 				h.Judul  AS title,
-				h.remark AS revision
+				h.remark AS revision,
+				u.org    AS org
 			FROM history h
+			LEFT JOIN useraccounts u
+				ON u.username = h.username COLLATE latin1_general_ci
 		`;
 
 		// ── Export: semua data, tanpa pagination ──────────────────────────────
@@ -66,20 +73,24 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 						h.nmdoc    LIKE '%${like}%' OR
 						h.remark   LIKE '%${like}%' OR
 						h.tanggal  LIKE '%${like}%' OR
-						h.Judul    LIKE '%${like}%'
+						h.Judul    LIKE '%${like}%' OR
+						u.org      LIKE '%${like}%'
 					)
 					ORDER BY h.no DESC
 					LIMIT ${limit} OFFSET ${offset}
 				`)),
 				db.execute(sql.raw(`
 					SELECT COUNT(*) AS total FROM history h
+					LEFT JOIN useraccounts u
+						ON u.username = h.username COLLATE latin1_general_ci
 					WHERE (
 						h.username LIKE '%${like}%' OR
 						h.nama     LIKE '%${like}%' OR
 						h.nmdoc    LIKE '%${like}%' OR
 						h.remark   LIKE '%${like}%' OR
 						h.tanggal  LIKE '%${like}%' OR
-						h.Judul    LIKE '%${like}%'
+						h.Judul    LIKE '%${like}%' OR
+						u.org      LIKE '%${like}%'
 					)
 				`))
 			]);

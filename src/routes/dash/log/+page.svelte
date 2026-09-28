@@ -133,7 +133,7 @@
 			}
 
 			const wsData: any[][] = [[
-				'No', 'Timestamp', 'Nama', 'NIK', 'Nomor File', 'Revisi', 'Judul Dokumen'
+				'No', 'Timestamp', 'Nama', 'NIK', 'Departemen', 'Nomor File', 'Revisi', 'Judul Dokumen'
 			]];
 			rows.forEach((r, i) => {
 				wsData.push([
@@ -141,6 +141,7 @@
 					r.tanggal  ?? '-',
 					r.nama     ?? '-',
 					r.username ?? '-',
+					r.org      ?? '-',
 					r.nmdoc    ?? '-',
 					r.revision ?? '-',
 					r.title    ?? '-',
@@ -153,6 +154,7 @@
 				{ wch: 5  },
 				{ wch: 22 },
 				{ wch: 28 },
+				{ wch: 12 },
 				{ wch: 12 },
 				{ wch: 20 },
 				{ wch: 8  },
@@ -445,6 +447,7 @@
 							{ col: 'tanggal',  label: 'Timestamp',     cls: 'pl-4! w-1! whitespace-nowrap' },
 							{ col: 'nama',     label: 'Nama',           cls: 'w-1! whitespace-nowrap' },
 							{ col: 'username', label: 'NIK',            cls: 'w-1!' },
+							{ col: 'org',      label: 'Departemen',         cls: 'w-1! whitespace-nowrap' },
 							{ col: 'nmdoc',    label: 'Nomor File',     cls: 'w-1! whitespace-nowrap' },
 							{ col: 'revision', label: 'Rev',            cls: 'w-1!' },
 							{ col: 'title',    label: 'Judul Dokumen',  cls: '' },
@@ -464,11 +467,11 @@
 				<Table.Body>
 					{#if !loading && error}
 						<Table.Row>
-							<Table.Cell colspan={6} class="text-center py-20 opacity-40">Gagal memuat data.</Table.Cell>
+							<Table.Cell colspan={7} class="text-center py-20 opacity-40">Gagal memuat data.</Table.Cell>
 						</Table.Row>
 					{:else if !loading && sortedLogs.length === 0}
 						<Table.Row>
-							<Table.Cell colspan={6} class="text-center py-20 opacity-40">
+							<Table.Cell colspan={7} class="text-center py-20 opacity-40">
 								{total === 0 ? 'Belum ada log.' : 'Tidak ada hasil pencarian.'}
 							</Table.Cell>
 						</Table.Row>
@@ -480,6 +483,7 @@
 								</Table.Cell>
 								<Table.Cell class="w-1! whitespace-nowrap select-text!">{log.nama || '-'}</Table.Cell>
 								<Table.Cell class="w-1! select-text!">{log.username || '-'}</Table.Cell>
+								<Table.Cell class="w-1! whitespace-nowrap select-text!">{log.org || '-'}</Table.Cell>
 								<Table.Cell class="w-1! font-medium! select-text!">{log.nmdoc || '-'}</Table.Cell>
 								<Table.Cell class="w-1! select-text!">{log.revision || '-'}</Table.Cell>
 								<Table.Cell class="max-w-[28vw] truncate select-text!" title={log.title || '-'}>{log.title || '-'}</Table.Cell>
