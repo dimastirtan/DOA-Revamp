@@ -18,3 +18,12 @@
 	white-space: nowrap;
 	user-select: none;
 }
+
+/* Cegah cetak: saat allowPrint=0, doa-secure.js menambahkan class .doa-noprint
+   ke <html>. Apa pun yang dipaksa dicetak dari viewer keluar KOSONG. */
+@media print {
+	html.doa-noprint,
+	html.doa-noprint body {
+		display: none !important;
+	}
+}

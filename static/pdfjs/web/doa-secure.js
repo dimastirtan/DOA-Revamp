@@ -14,6 +14,18 @@
 	const allowDownload = params.get('allowDownload') === '1';
 	const allowPrint = params.get('allowPrint') === '1';
 
+	// Matikan print saat tak diizinkan:
+	// - override window.print → no-op (tombol print PDF.js ujungnya panggil ini).
+	// - tandai <html> dengan .doa-noprint → @media print (doa-secure.css)
+	//   mengosongkan hasil cetak walau print dipaksa dari menu browser.
+	if (!allowPrint) {
+		try { document.documentElement.classList.add('doa-noprint'); } catch (e) {}
+		try {
+			window.print = function () {};
+			window.addEventListener('beforeprint', function (e) { e.preventDefault(); });
+		} catch (e) {}
+	}
+
 	// Identitas untuk watermark. Idealnya diisi server saat membuat URL viewer;
 	// URL ini sekadar meneruskannya ke overlay.
 	window.watermarkData = {
@@ -38,15 +50,20 @@
 		}
 	});
 
-	// Deterrent klik-kanan & shortcut simpan/print.
+	// Deterrent klik-kanan & shortcut simpan/print. Capture phase +
+	// stopImmediatePropagation supaya handler Ctrl+P milik PDF.js tak kebagian.
 	document.addEventListener('contextmenu', (e) => e.preventDefault());
-	document.addEventListener('keydown', function (e) {
-		const k = (e.key || '').toLowerCase();
-		if ((e.ctrlKey || e.metaKey) && (k === 's' || (!allowPrint && k === 'p'))) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-	});
+	document.addEventListener(
+		'keydown',
+		function (e) {
+			const k = (e.key || '').toLowerCase();
+			if ((e.ctrlKey || e.metaKey) && (k === 's' || (!allowPrint && k === 'p'))) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		},
+		true
+	);
 
 	// Watermark identitas di tiap halaman yang selesai dirender.
 	function waitForApp(cb) {
@@ -59,6 +76,12 @@
 	}
 
 	waitForApp(function (app) {
+		// PDF.js menimpa window.print dengan print service-nya sendiri saat init.
+		// Re-assert no-op DI SINI (sesudah app siap) supaya jalur print PDF.js mati.
+		if (!allowPrint) {
+			try { window.print = function () {}; } catch (e) {}
+		}
+
 		const wm = window.watermarkData;
 		const text = 'CONFIDENTIAL | ' + wm.user + ' | ' + wm.ip + ' | ' + wm.time;
 		app.eventBus.on('pagerendered', function (event) {
