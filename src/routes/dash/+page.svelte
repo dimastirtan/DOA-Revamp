@@ -833,6 +833,23 @@
 		>
 			<img src="note.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
 		</div>
+			<div
+			class="flex flex-row bg-[#fff] p-2 px-3 gap-2 group"
+			role="button"
+			tabindex="0"
+			title="Kelola Divisi"
+			onclick={() => {
+				goto('/dash/divisi');
+			}}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					goto('/dash/divisi');
+				}
+			}}
+			>
+				<img src="users3.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
+			</div>
 		{/if}
 	<Popover.Root bind:open={mbukakSearch}>
 		<Popover.Trigger class="flex! flex-row! bg-[#fff]! p-2! px-3! gap-2! group">
