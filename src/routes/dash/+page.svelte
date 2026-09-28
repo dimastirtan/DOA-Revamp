@@ -68,7 +68,7 @@
 	// Aircraft/Non-Aircraft — hanya label divisinya (dari -doa/r: divisiLabel).
 	let group = $derived(
 		typeof data.user?.userlevel === 'number' && data.user.userlevel >= 6
-			? [{ icon: 'helic.svg', value: 'divisi', label: divisiLabel || 'Divisi' }]
+			? [{ icon: 'logo.png', value: 'divisi', label: divisiLabel || 'Divisi' }]
 			: [
 					{ icon: 'plane.svg', value: 'aircraft', label: 'Aircraft' },
 					{ icon: 'helic.svg', value: 'non_aircraft', label: 'Non Aircraft' }
@@ -729,7 +729,7 @@
 		</div>
 	{/if}
 	<Select.Root type="single" bind:value>
-		<Select.Trigger class="flex! flex-row! bg-[#fff]! py-5! px-3! w-48! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
+		<Select.Trigger class="flex! flex-row! bg-[#fff]! py-5! px-3! w-480 gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
 			<!-- {triggerContent} -->
 			<!-- <img
 			src="helic.svg?v=3"
@@ -742,13 +742,13 @@
 				{:else}
 					<img src="helic.svg?v=3" class="w-7 group-hover:rotate-[45deg] transition-all duration-500 scale-x-[-1]" alt="" />
 				{/if} -->
-
-				<div class="plane-img {group.find((t) => t.value === value)?.value === 'aircraft' ? 'block' : 'hidden'}">
+				{#if group.find((t) => t.value === value)?.value === 'aircraft'}
 					<img src="plane.svg?v=2" class="w-6 group-hover:rotate-[-45deg] transition-all duration-500" alt="" />
-				</div>
-				<div class="heli-img {group.find((t) => t.value === value)?.value === 'aircraft' ? 'hidden' : 'block'}">
+				{:else if group.find((t) => t.value === value)?.value === 'non_aircraft'}
 					<img src="helic.svg?v=3" class="w-7 group-hover:rotate-[25deg] transition-all duration-500 scale-x-[-1]" alt="" />
-				</div>
+				{:else}
+					<img src="logo.png?v=3" class="w-7 group-hover:rotate-[25deg] transition-all duration-500 scale-x-[-1]" alt="" />
+				{/if}
 			</div>
 			<p class="text-base">{group.find((t) => t.value === value)?.label}</p>
 		</Select.Trigger>
@@ -766,8 +766,10 @@
 					>
 						{#if group.value === 'aircraft'}
 							<img src="plane.svg?v=2" class="w-6 mr-2 group-hover:rotate-[-45deg] transition-all duration-500" alt="" />
+						{:else if group.value === 'divisi'}
+							<img src="logo.png?v=3" class="w-7 mr-2 group-hover:rotate-[-45deg] transition-all duration-500 scale-x-[-1]" alt="" />
 						{:else}
-							<img src="helic.svg?v=3" class="w-7 mr-2 group-hover:rotate-[-45deg] transition-all duration-500 scale-x-[-1]" alt="" />
+							<img src="helic.svg?v=3" class="w-7 mr-2 group-hover:rotate-[25deg] transition-all duration-500 scale-x-[-1]" alt="" />
 						{/if}
 						<p class="text-base">{group.label}</p>
 					</Select.Item>
@@ -848,7 +850,7 @@
 				}
 			}}
 			>
-				<img src="users3.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
+				<img src="config.svg?c" class="w-4 group-hover:rotate-[45deg] transition-all duration-500" alt="" />
 			</div>
 		{/if}
 	<Popover.Root bind:open={mbukakSearch}>
@@ -1091,8 +1093,13 @@
 				<div class="flex gap-2">
 					<div class={selectedDoaGroup ? 'flex' : 'hidden'}>
 						<div class="plane-img flex flex-row bg-[#677787] p-2 px-3 gap-2 group">
+						{#if (selectedDoaGroup === 'AIRCRAFT' || selectedDoaGroup === 'NON AIRCRAFT')}
 							<img src={selectedDoaGroup === 'AIRCRAFT' ? 'plane.svg?v=2' : 'helic.svg?v=3'} class="w-4 {selectedDoaGroup === 'AIRCRAFT' ? 'w-4' : 'w-5'}" alt="" />
 							<p class="font-medium text-white!">{selectedDoaGroup.toUpperCase().replace('-', ' ')}</p>
+						{:else}
+							<img src="logo.png" class="w-6" alt="" />
+							<p class="font-medium text-white!">{divisiLabel}</p>
+						{/if}
 						</div>
 					</div>
 
