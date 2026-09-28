@@ -206,12 +206,21 @@ kelihatan di bar bawah untuk admin (browsing) — menunggu arah dari user.
 
 ## 8. Rencana bertahap (kalau disetujui)
 
-- **Fase 1 — Log divisi**: kecil, tak ubah akses. Aman duluan.
-- **Fase 2 — Print hardening**: token proxy + matikan print + `@media print`.
-  Nilai keamanan tertinggi, independen dari role divisi.
-- **Fase 3 — Role divisi**: userlevel 6–9, tabel `procedure_division`, cabang
+- ✅ **Fase 1 — Log Departemen** (SELESAI lokal, branch `divisi-wip` commit
+  `369c969`): kolom Departemen = `org` via live JOIN (COLLATE), bisa search
+  by divisi, ikut export XLSX. Tanpa perubahan skema.
+- ✅ **Fase 2 — Print hardening** (SELESAI lokal, branch `divisi-wip` commit
+  `0b3a774`): `window.print` no-op (di-assert ulang sesudah PDF.js), Ctrl+P/S
+  diblok (capture), `@media print` mengosongkan hasil cetak di viewer & halaman
+  induk. **Belum termasuk** token proxy anti buka-URL-langsung (menyusul, lihat §6).
+- ⏳ **Fase 3 — Role divisi**: userlevel 6–9, tabel `procedure_division`, cabang
   `-doa/r`, otorisasi proxy, homepage per divisi, label userlevel.
-- **Fase 4 — Dashboard Kelola Divisi**: UI admin/controller kelola mapping.
+- ⏳ **Fase 4 — Dashboard Kelola Divisi**: UI admin/controller kelola mapping.
   (Bisa barengan Fase 3; sampai jadi, mapping diisi via SQL sementara.)
 
-Urutan aman: **1 → 2 → 3 → 4**. Fase 1 & 2 beri nilai cepat tanpa nunggu apa pun.
+Urutan aman: **1 → 2 → 3 → 4**. Fase 1 & 2 sudah jalan di lokal.
+
+> Catatan Fase 2: yang BELUM ditutup = buka URL proxy `/-doa/pdf` langsung di tab
+> baru (masih dapat PDF mentah yang bisa diprint/download di luar viewer). Ini
+> butuh **token sekali-pakai** di proxy (§6) — item terpisah, bisa dikerjakan
+> sebelum/berbarengan Fase 3.

@@ -22,9 +22,9 @@ statusnya, dan ke mana baca detail. Diperbarui 21 Sep 2026.
 | PDF anti-download / anti-screencapture | 📝 rancangan | `docs/pdf_secure_viewer.md` |
 | PDF viewer in-app (buka DOA tak lagi ke PHP) | 🟡 selesai & teruji lokal | `docs/pdf_secure_viewer.md` |
 | Filter departemen user (prefix org: DT/FT/SE/TD) | 🟡 selesai lokal | `docs/departemen.md` |
-| Role divisi Non-DOA + filter procedure per divisi | 📝 rancangan | `docs/divisi_design.md` |
-| ↳ Log Aktivitas + kolom divisi | 📝 rancangan | `docs/divisi_design.md` §4c |
-| ↳ Print PDF benar-benar dimatikan | 📝 rancangan | `docs/divisi_design.md` §6 |
+| Role divisi + filter procedure per divisi (Fase 3) | 📝 rancangan | `docs/divisi_design.md` |
+| ↳ Log Aktivitas + kolom Departemen (org) — Fase 1 | 🟡 selesai lokal (branch `divisi-wip`) | `docs/divisi_design.md` §4d |
+| ↳ Print PDF benar-benar dimatikan — Fase 2 | 🟡 selesai lokal (branch `divisi-wip`) | `docs/divisi_design.md` §6 |
 | Akun massal semua karyawan + ubah password | ⏳ belum mulai | (permintaan manager terbaru) |
 
 ---
