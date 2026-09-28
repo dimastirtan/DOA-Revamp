@@ -10,6 +10,11 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	if (!locals.user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+	// Baca log hanya untuk Admin(-1) & Controller(5). (POST tetap terbuka:
+	// semua user perlu mencatat log saat membuka file.)
+	if (locals.user.userlevel !== -1 && locals.user.userlevel !== 5) {
+		return json({ error: 'Forbidden' }, { status: 403 });
+	}
 
 	try {
 		const isExport = url.searchParams.get('export') === 'xlsx';

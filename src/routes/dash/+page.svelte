@@ -729,7 +729,7 @@
 		</div>
 	{/if}
 	<Select.Root type="single" bind:value>
-		<Select.Trigger class="flex! flex-row! bg-[#fff]! py-5! px-3! w-480 gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
+		<Select.Trigger class="flex! flex-row! bg-[#fff]! py-5! px-3! w-64! gap-3! group shadow-none! overflow-hidden! border-0! rounded-none!">
 			<!-- {triggerContent} -->
 			<!-- <img
 			src="helic.svg?v=3"
