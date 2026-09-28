@@ -12,7 +12,7 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { gsap } from 'gsap';
-	import { onMount, tick } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { mainTitle } from '$lib/store';
 
@@ -55,7 +55,7 @@
 	let judul = $state('');
 	let nomor = $state('');
 	let revisi = $state('');
-	let animationFrame: number;
+	let clockTimer: ReturnType<typeof setInterval>;
 	let searchRef = $state<HTMLInputElement | null>(null);
 	let loadingLogout = $state(false);
 	let loadingDoa = $state(false);
@@ -156,39 +156,35 @@
 
 	let dateNow = $state(Date.now());
 
-	const updateTime = async () => {
+	// Formatter dibuat SEKALI lalu dipakai ulang (membuat Intl.DateTimeFormat itu
+	// mahal — dulu dibuat ulang tiap frame). Jam update 1x/detik via setInterval,
+	// bukan requestAnimationFrame 60fps.
+	const dateFmt = new Intl.DateTimeFormat('id-ID', {
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric'
+	});
+	const timeFmt = new Intl.DateTimeFormat('id-ID', {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false
+	});
+
+	const updateTime = () => {
 		dateNow = Date.now();
-
-		if (animationFrame) {
-			cancelAnimationFrame(animationFrame);
-			animationFrame = 0;
-		}
-
-		animationFrame = requestAnimationFrame(async () => {
-			await tick();
-			updateTime();
-		});
+		clearInterval(clockTimer);
+		clockTimer = setInterval(() => {
+			dateNow = Date.now();
+		}, 1000);
 	};
 
-	let formattedDate = $derived.by(() => {
-		return new Intl.DateTimeFormat('id-ID', {
-			weekday: 'long',
-			day: 'numeric',
-			month: 'long',
-			year: 'numeric'
-		}).format(new Date(dateNow));
-	});
+	onDestroy(() => clearInterval(clockTimer));
 
-	let formattedTime = $derived.by(() => {
-		return new Intl.DateTimeFormat('id-ID', {
-			hour: '2-digit',
-			minute: '2-digit',
-			second: '2-digit',
-			hour12: false
-		})
-			.format(new Date(dateNow))
-			.replace(/\./g, ':');
-	});
+	let formattedDate = $derived(dateFmt.format(new Date(dateNow)));
+
+	let formattedTime = $derived(timeFmt.format(new Date(dateNow)).replace(/\./g, ':'));
 
 	let greeting = $derived.by(() => {
 		const hour = new Date(dateNow).getHours();
@@ -1650,7 +1646,7 @@
 				</div>
 				<div class="table-scroll-container">
 					<Table.Root>
-						<Table.Header class="shadow-none!">
+						<Table.Header class="shadow-none! sticky!">
 							<Table.Row class="bg-[#213C51]! sticky! top-0! z-20!">
 								<Table.Head class="py-4! pl-4! cursor-pointer " onclick={() => handleSortUser('activated')}>
 									<div class="flex items-center gap-2 relative">
