@@ -132,7 +132,7 @@
 	const userlevels = [
 		{ value: -1, label: 'Administrator' },
 		{ value: 1, label: 'DOA Personel' },
-		{ value: 2, label: 'PMO/PPC' },
+		{ value: 2, label: 'Aircraft' },
 		{ value: 3, label: 'Non Aircraft' },
 		{ value: 5, label: 'Controller' }
 	];
@@ -212,19 +212,37 @@
 	};
 
 	// ── Buka dokumen + tawaran quiz ─────────────────────────────────────────
-	// Membuka PDF di tab baru (perilaku lama). Untuk PROCEDURE (pro/pro2) yang
-	// punya quiz aktif, munculkan modal tawaran mengerjakan quiz di tab ini.
+	// Membuka PDF di tab baru. Untuk PROCEDURE (pro/pro2) yang punya quiz aktif,
+	// munculkan modal tawaran mengerjakan quiz di tab ini.
 	let mbukakQuizPrompt = $state(false);
 	let quizPromptDoc = $state<{ ndm: string; title: string; revision: string } | null>(null);
 
+	// Mode buka PDF: 'viewer' = viewer in-app (anti-download + watermark, via
+	// /dash/baca), 'legacy' = langsung watermark.php lama di tab portalditek.
+	// Ubah ke 'legacy' untuk balik ke perilaku lama. (docs/pdf_secure_viewer.md)
+	const PDF_MODE = 'viewer' as 'viewer' | 'legacy';
+
 	const bukaDoa = async (doa: any) => {
 		await logActivity(doa);
-		window.open(
-			selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM')
-				? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
-				: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
-			'_blank'
-		);
+		const isForm = !!(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM'));
+		if (PDF_MODE === 'legacy') {
+			window.open(
+				isForm
+					? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
+					: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+				'_blank'
+			);
+		} else {
+			// Viewer in-app: file diambil via proxy same-origin (/-doa/pdf),
+			// identitas watermark diisi server dari session di /dash/baca.
+			const q = new URLSearchParams({
+				nmpath: doa.nmpath ?? '',
+				jdl: doa.title ?? '',
+				form: isForm ? '1' : '0',
+				pdf: doa.pdf ?? ''
+			});
+			window.open(`/dash/baca?${q.toString()}`, '_blank');
+		}
 
 		// Hanya procedure yang punya quiz DAN belum lulus — tawarkan kerjakan sekarang.
 		// Kalau user sudah lulus procedure ini, modal tidak muncul lagi.
@@ -379,7 +397,7 @@
 						userlevel_name: (() => {
 							if (user.userlevel == '-1') return 'Administrator';
 							if (user.userlevel == '1') return 'DOA Personel';
-							if (user.userlevel == '2') return 'PMO/PPC';
+							if (user.userlevel == '2') return 'Aircraft';
 							if (user.userlevel == '3') return 'Non Aircraft';
 							if (user.userlevel == '5') return 'Controller';
 							return '-';
@@ -531,12 +549,17 @@
 	let sortColumnUser = $state('configPenghasil');
 	let sortDirectionUser = $state('asc');
 
-	// Filter departemen (kode C_ORG penuh, mis. SE1000). '' = semua.
+	// Filter departemen berdasarkan prefix huruf kode C_ORG (mis. SE, TD).
+	// '' = semua. Kode penuh (SE1000/SE2000/SE1300) tetap tampil di kolom tabel.
 	let selectedOrgFilter = $state('');
 
-	// Daftar kode departemen unik yg muncul di antara user (utk dropdown filter).
+	// Ambil prefix huruf dari kode org, mis. "SE1000" -> "SE".
+	const orgPrefix = (o: any) => (String(o ?? '').match(/^[A-Za-z]+/)?.[0] || '').toUpperCase();
+
+	// Daftar prefix huruf unik yg muncul di antara user (utk dropdown filter).
+	// Pakai prefix biar opsi filter ringkas (SE, TD, ...), bukan tiap kode penuh.
 	let orgList = $derived(
-		[...new Set((data.users || []).map((u: any) => u.org).filter((o: any) => !!o))].sort()
+		[...new Set((data.users || []).map((u: any) => orgPrefix(u.org)).filter((o: any) => !!o))].sort()
 	);
 
 	const handleSortUser = (column: string) => {
@@ -550,7 +573,7 @@
 
 	let filteredUsers = $derived(
 		(data.users || [])
-			.filter((user: any) => !selectedOrgFilter || user.org === selectedOrgFilter)
+			.filter((user: any) => !selectedOrgFilter || orgPrefix(user.org) === selectedOrgFilter)
 			.filter((user: any) => !search || user.username.toLowerCase().includes(search.toLowerCase()) || user.activated.toLowerCase().includes(search.toLowerCase()) || user.userlevel_name.toLowerCase().includes(search.toLowerCase()) || user.configPenghasil.toLowerCase().includes(search.toLowerCase()) || (user.org || '').toLowerCase().includes(search.toLowerCase()))
 			.sort((a: any, b: any) => {
 				if (!sortColumnUser) return 0;
