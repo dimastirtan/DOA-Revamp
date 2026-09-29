@@ -143,7 +143,7 @@
 		{ value: 2, label: 'Aircraft' },
 		{ value: 3, label: 'Non Aircraft' },
 		{ value: 5, label: 'Controller' },
-		{ value: 6, label: 'Program Management' },
+		{ value: 6, label: 'Manajemen Program' },
 		{ value: 7, label: 'Manajemen Resiko' },
 		{ value: 8, label: 'Human Capital' },
 		{ value: 9, label: 'Direktorat Produksi' }
@@ -156,9 +156,6 @@
 
 	let dateNow = $state(Date.now());
 
-	// Formatter dibuat SEKALI lalu dipakai ulang (membuat Intl.DateTimeFormat itu
-	// mahal — dulu dibuat ulang tiap frame). Jam update 1x/detik via setInterval,
-	// bukan requestAnimationFrame 60fps.
 	const dateFmt = new Intl.DateTimeFormat('id-ID', {
 		weekday: 'long',
 		day: 'numeric',
@@ -1646,7 +1643,7 @@
 				</div>
 				<div class="table-scroll-container">
 					<Table.Root>
-						<Table.Header class="shadow-none! sticky!">
+						<Table.Header class="shadow-none!">
 							<Table.Row class="bg-[#213C51]! sticky! top-0! z-20!">
 								<Table.Head class="py-4! pl-4! cursor-pointer " onclick={() => handleSortUser('activated')}>
 									<div class="flex items-center gap-2 relative">

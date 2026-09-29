@@ -28,10 +28,16 @@ export const lucia = new Lucia(adapter, {
 		return {
 			id: attributes.id,
 			kuid: attributes.kuid,
+			// password di-expose HANYA agar hooks bisa cek "default (==NIK)".
+			// hooks.server.ts MENGHAPUS field ini sebelum data sampai ke client.
+			// (Username asli tak tersedia di sini — Lucia memisahkan kolom id —
+			// jadi mustChangePassword dihitung di hooks tempat locals.user.id benar.)
+			password: attributes.password,
 			userlevel: attributes.userlevel,
 			provinsi: attributes.provinsi,
 			configPenghasil: attributes.configPenghasil,
-			activated: attributes.activated
+			activated: attributes.activated,
+			mustChangePassword: false
 		};
 	}
 });
@@ -46,6 +52,7 @@ declare module "lucia" {
 interface DatabaseUserAttributes {
 	id: string;
 	kuid: string;
+	password: string;
 	userlevel: number;
 	provinsi: string;
 	configPenghasil: string;

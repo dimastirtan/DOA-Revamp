@@ -2,6 +2,9 @@ import { lucia } from "$lib/server/auth";
 import { sequence } from '@sveltejs/kit/hooks';
 import { type Handle, redirect } from '@sveltejs/kit';
 import { minify } from 'html-minifier';
+import crypto from 'crypto';
+
+const md5 = (s: string) => crypto.createHash('md5').update(s).digest('hex');
 
 const minifyHtml: Handle = async ({ event, resolve }) => {
   return resolve(event, {
@@ -73,6 +76,15 @@ const luciaAuth: Handle = async ({ event, resolve }) => {
 		event.locals.session = session;
 	}
 
+	// Hitung "password masih default (== NIK)" di sini: locals.user.id = username
+	// yang benar (Lucia memisahkannya dari attributes). Lalu HAPUS hash password
+	// supaya tak ikut terkirim ke client via +layout.server.ts.
+	if (event.locals.user) {
+		const usr = event.locals.user as { id: string; password?: string; mustChangePassword: boolean };
+		usr.mustChangePassword = typeof usr.password === 'string' && usr.password === md5(usr.id);
+		delete usr.password;
+	}
+
 	return resolve(event);
 };
 
@@ -100,8 +112,38 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+// Paksa ganti password saat login pertama (password masih default == NIK).
+// mustChangePassword dihitung di getUserAttributes (auth.ts). Selama true, semua
+// path aplikasi terlindungi dialihkan ke /change-password, kecuali halaman ganti
+// password itu sendiri, endpoint-nya, dan logout.
+const forcePasswordChange: Handle = async ({ event, resolve }) => {
+	const u = event.locals.user;
+	if (u?.mustChangePassword) {
+		const path = event.url.pathname;
+		const allowed =
+			path === '/change-password' ||
+			path.startsWith('/-users/ganti-password') ||
+			path.startsWith('/-logout');
+		const guarded =
+			path === '/' || ['/dash', '/-users/r', '/-doa'].some((p) => path.startsWith(p));
+
+		if (guarded && !allowed) {
+			// Endpoint aplikasi (konvensi prefix "/-") → 403 JSON; halaman → redirect.
+			if (path.startsWith('/-')) {
+				return new Response(
+					JSON.stringify({ success: false, error: 'MUST_CHANGE_PASSWORD' }),
+					{ status: 403, headers: { 'content-type': 'application/json' } }
+				);
+			}
+			return new Response(null, { status: 303, headers: { location: '/change-password' } });
+		}
+	}
+	return resolve(event);
+};
+
 export const handle: Handle = sequence(
 	luciaAuth,
 	authGuard,
+	forcePasswordChange,
 	minifyHtml
 );
