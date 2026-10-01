@@ -6,6 +6,10 @@ import crypto from 'crypto';
 
 const md5 = (s: string) => crypto.createHash('md5').update(s).digest('hex');
 
+// Saklar fitur "wajib ganti password saat login pertama".
+// false = NONAKTIF sementara (untuk demo). Ubah ke true untuk mengaktifkan lagi.
+const ENFORCE_FIRST_LOGIN_PASSWORD_CHANGE = false;
+
 const minifyHtml: Handle = async ({ event, resolve }) => {
   return resolve(event, {
     transformPageChunk: ({ html, done }) => {
@@ -117,6 +121,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 // path aplikasi terlindungi dialihkan ke /change-password, kecuali halaman ganti
 // password itu sendiri, endpoint-nya, dan logout.
 const forcePasswordChange: Handle = async ({ event, resolve }) => {
+	if (!ENFORCE_FIRST_LOGIN_PASSWORD_CHANGE) return resolve(event);
 	const u = event.locals.user;
 	if (u?.mustChangePassword) {
 		const path = event.url.pathname;
