@@ -16,7 +16,7 @@ import nodemailer from 'nodemailer';
 // TODO (diisi user): folder tujuan di server untuk menyimpan PDF surat pernyataan.
 // Mis. '\\\\server\\share\\surat' (UNC Windows) atau '/var/doa/surat' (Linux).
 // Default lokal 'surat_pernyataan' (relatif ke folder kerja aplikasi).
-const SURAT_PERNYATAAN_DIR = 'surat_pernyataan';
+const SURAT_PERNYATAAN_DIR = "\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
@@ -255,6 +255,40 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				});
 			} catch (mailErr) {
 				console.error('Email user gagal (diabaikan):', mailErr);
+			}
+
+			// Kirim PDF surat pernyataan ke email Responsible Manager (non-fatal).
+			// Tanpa kredensial — password hanya dikirim ke user ybs.
+			try {
+				const transporterMgr = nodemailer.createTransport({
+					host: '10.1.0.6',
+					port: 25,
+					secure: false,
+					tls: {
+						rejectUnauthorized: false
+					}
+				});
+
+				await transporterMgr.sendMail({
+					from: 'noreply@indonesian-aerospace.com',
+					to: [data.r.mgr_email],
+					subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik,
+					html: `
+						<p>Hai ${data.r.mgr_nama},</p>
+						<p>Terlampir Surat Pernyataan dari <b>${data.r.nama}</b> (NIK ${data.r.nik}) yang Anda setujui sebagai Responsible Manager.</p>
+						</br>
+						<p>Terima kasih,</p>
+						<p>PTDI Design Organization</p>
+					`,
+					attachments: [
+						{
+							filename: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + '.pdf',
+							content: fs.createReadStream(pdfPath)
+						}
+					]
+				});
+			} catch (mailErr) {
+				console.error('Email manager gagal (diabaikan):', mailErr);
 			}
 
 			return json({ success: true });
