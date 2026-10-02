@@ -7,9 +7,16 @@ import * as yup from 'yup';
 import md5 from 'blueimp-md5';
 import { registers } from '$lib/server/db/schema';
 import fs from 'fs';
+import path from 'path';
 import PizZip from 'pizzip';
-// import topdf from 'docx2pdf-converter';
+// @ts-ignore - paket docx2pdf-converter tak punya type declaration
+import topdf from 'docx2pdf-converter';
 import nodemailer from 'nodemailer';
+
+// TODO (diisi user): folder tujuan di server untuk menyimpan PDF surat pernyataan.
+// Mis. '\\\\server\\share\\surat' (UNC Windows) atau '/var/doa/surat' (Linux).
+// Default lokal 'surat_pernyataan' (relatif ke folder kerja aplikasi).
+const SURAT_PERNYATAAN_DIR = 'surat_pernyataan';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
@@ -187,56 +194,63 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			}
 
 			const out = zip.generate({ type: 'nodebuffer' });
-			if (!fs.existsSync('docx')) {
-				fs.mkdirSync('docx', { recursive: true });
+
+			// Simpan docx sementara → konversi ke PDF → taruh di folder SERVER →
+			// hapus docx. Surat pernyataan kini DISIMPAN KE SERVER, bukan lagi
+			// dikirim via email ke admin + manager.
+			if (!fs.existsSync('docx')) fs.mkdirSync('docx', { recursive: true });
+			const docxPath = 'docx/' + data.r.nik + '.docx';
+			fs.writeFileSync(docxPath, out);
+
+			if (!fs.existsSync(SURAT_PERNYATAAN_DIR)) {
+				fs.mkdirSync(SURAT_PERNYATAAN_DIR, { recursive: true });
 			}
-			fs.writeFileSync('docx/' + data.r.nik + '.docx', out);
-			// await topdf.convert('pdf/' + data.r.nik + '.docx', 'pdf/' + data.r.nik + '.pdf');
-			// fs.unlinkSync('pdf/' + data.r.nik + '.docx');
+			const pdfPath = path.join(SURAT_PERNYATAAN_DIR, data.r.nik + '.pdf');
+			// Konversi butuh Word (Windows) / unoconv+LibreOffice (Linux) di server.
+			topdf.convert(docxPath, pdfPath);
+			try {
+				fs.unlinkSync(docxPath);
+			} catch {
+				/* abaikan */
+			}
 
-			const transporter = nodemailer.createTransport({
-				host: '10.1.0.6',
-				port: 25,
-				secure: false,
-				tls: {
-					rejectUnauthorized: false
-				}
-			});
-
-			await transporter.sendMail({
-				from: 'noreply@indonesian-aerospace.com',
-				to: [data.r.mgr_email, 'das@indonesian-aerospace.com'],
-				subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik,
-				attachments: [
-					{
-						filename: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + '.docx',
-						content: fs.createReadStream('docx/' + data.r.nik + '.docx')
+			// Email info login ke user (lampiran PDF). Non-fatal: registrasi tetap
+			// sukses walau mail server tak terjangkau.
+			try {
+				const transporter = nodemailer.createTransport({
+					host: '10.1.0.6',
+					port: 25,
+					secure: false,
+					tls: {
+						rejectUnauthorized: false
 					}
-				]
-			});
+				});
 
-			await transporter.sendMail({
-				from: 'noreply@indonesian-aerospace.com',
-				to: [data.r.email],
-				subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + ' - PTDI Design Organization',
-				html: `
-					<p>Hai ${data.r.nama},</p>
-					<p>Terimakasih telah mendaftar di aplikasi PTDI Design Organization.</p>
-					</br>
-					<p>Silahkan gunakan identitas berikut untuk login:</p>
-					<p>NIK: <b>${data.r.nik}</b></p>
-					<p>Password: <b>${data.r.password}</b></p>
-					</br>
-					<p>Terima kasih,</p>
-					<p>PTDI Design Organization</p>
-				`,
-				attachments: [
-					{
-						filename: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + '.docx',
-						content: fs.createReadStream('docx/' + data.r.nik + '.docx')
-					}
-				]
-			});
+				await transporter.sendMail({
+					from: 'noreply@indonesian-aerospace.com',
+					to: [data.r.email],
+					subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + ' - PTDI Design Organization',
+					html: `
+						<p>Hai ${data.r.nama},</p>
+						<p>Terimakasih telah mendaftar di aplikasi PTDI Design Organization.</p>
+						</br>
+						<p>Silahkan gunakan identitas berikut untuk login:</p>
+						<p>NIK: <b>${data.r.nik}</b></p>
+						<p>Password: <b>${data.r.password}</b></p>
+						</br>
+						<p>Terima kasih,</p>
+						<p>PTDI Design Organization</p>
+					`,
+					attachments: [
+						{
+							filename: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + '.pdf',
+							content: fs.createReadStream(pdfPath)
+						}
+					]
+				});
+			} catch (mailErr) {
+				console.error('Email user gagal (diabaikan):', mailErr);
+			}
 
 			return json({ success: true });
 		}

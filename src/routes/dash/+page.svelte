@@ -405,7 +405,7 @@
 							if (user.userlevel == '2') return 'Aircraft';
 							if (user.userlevel == '3') return 'Non Aircraft';
 							if (user.userlevel == '5') return 'Controller';
-							if (user.userlevel == '6') return 'Program Management';
+							if (user.userlevel == '6') return 'Manajemen Program';
 							if (user.userlevel == '7') return 'Manajemen Resiko';
 							if (user.userlevel == '8') return 'Human Capital';
 							if (user.userlevel == '9') return 'Direktorat Produksi';

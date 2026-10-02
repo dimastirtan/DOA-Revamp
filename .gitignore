@@ -27,3 +27,6 @@ vite.config.ts.timestamp-*
 
 upload.php
 /WES
+# Artefak runtime: surat pernyataan (docx sementara + PDF hasil)
+docx/
+surat_pernyataan/
