@@ -179,12 +179,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					}).format(new Date())
 				};
 
-				xml = xml.replace(/\{\{(?:(?!<w:p).)*?\}\}/g, (match) => {
+				// Lookahead HANYA berhenti di tag paragraf asli (<w:p> / <w:p ...),
+				// BUKAN <w:proofErr>/<w:pPr> dsb yang juga diawali "<w:p". Sebelumnya
+				// pakai (?!<w:p) → placeholder yang dibungkus <w:proofErr> (nik,
+				// org_lokasi, tanggal, mgr_*) tak ikut keganti. Flag s utk jaga-jaga
+				// kalau placeholder membentang antar baris.
+				xml = xml.replace(/\{\{(?:(?!<w:p[ >/]).)*?\}\}/gs, (match) => {
 					const cleanKey = match
 						.replace(/<[^>]+>/g, '')
 						.replace(/[\{\}]/g, '')
 						.trim();
-					if (replacements[cleanKey]) {
+					if (replacements[cleanKey] !== undefined) {
 						return replacements[cleanKey];
 					}
 					return match;
