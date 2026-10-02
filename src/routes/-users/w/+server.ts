@@ -18,6 +18,15 @@ import nodemailer from 'nodemailer';
 // Default lokal 'surat_pernyataan' (relatif ke folder kerja aplikasi).
 const SURAT_PERNYATAAN_DIR = "\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
 
+// Pengirim email. 'noreply@...' DITOLAK mail server ("User unknown in virtual
+// mailbox table") karena bukan mailbox nyata → pakai mailbox yang ADA.
+const MAIL_FROM = 'das@indonesian-aerospace.com';
+
+// TESTING: alihkan SEMUA penerima email ke alamat ini supaya tidak mengirim ke
+// email orang sungguhan saat uji coba. Set '' (string kosong) untuk PRODUKSI
+// (email dikirim ke penerima asli: user & responsible manager).
+const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
+
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
 
@@ -83,8 +92,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 						});
 
 						await transporter.sendMail({
-							from: 'noreply@indonesian-aerospace.com',
-							to: [registerInfo.email],
+							from: MAIL_FROM,
+							to: [TEST_EMAIL_OVERRIDE || registerInfo.email],
 							subject: 'Akun Teraktivasi - PTDI Design Organization',
 							html: `
 								<p>Hai ${registerInfo.nama},</p>
@@ -232,8 +241,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				});
 
 				await transporter.sendMail({
-					from: 'noreply@indonesian-aerospace.com',
-					to: [data.r.email],
+					from: MAIL_FROM,
+					to: [TEST_EMAIL_OVERRIDE || data.r.email],
 					subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + ' - PTDI Design Organization',
 					html: `
 						<p>Hai ${data.r.nama},</p>
@@ -270,8 +279,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				});
 
 				await transporterMgr.sendMail({
-					from: 'noreply@indonesian-aerospace.com',
-					to: [data.r.mgr_email],
+					from: MAIL_FROM,
+					to: [TEST_EMAIL_OVERRIDE || data.r.mgr_email],
 					subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik,
 					html: `
 						<p>Hai ${data.r.mgr_nama},</p>
