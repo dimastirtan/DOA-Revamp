@@ -27,6 +27,12 @@ const MAIL_FROM = 'das@indonesian-aerospace.com';
 // (email dikirim ke penerima asli: user & responsible manager).
 const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
 
+// Mail server butuh LOGIN (error "not logged in"). Kredensial mailbox pengirim.
+// TODO (diisi user): isi MAIL_PASS dengan password mailbox das@ (atau akun SMTP
+// yang valid). MAIL_USER biasanya = alamat pengirim.
+const MAIL_USER = 'das@indonesian-aerospace.com';
+const MAIL_PASS = '';
+
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
 
@@ -86,6 +92,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 							host: '10.1.0.6',
 							port: 25,
 							secure: false,
+							auth: {
+								user: MAIL_USER,
+								pass: MAIL_PASS
+							},
 							tls: {
 								rejectUnauthorized: false
 							}
@@ -228,51 +238,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				/* abaikan */
 			}
 
-			// Email info login ke user (lampiran PDF). Non-fatal: registrasi tetap
-			// sukses walau mail server tak terjangkau.
-			try {
-				const transporter = nodemailer.createTransport({
-					host: '10.1.0.6',
-					port: 25,
-					secure: false,
-					tls: {
-						rejectUnauthorized: false
-					}
-				});
-
-				await transporter.sendMail({
-					from: MAIL_FROM,
-					to: [TEST_EMAIL_OVERRIDE || data.r.email],
-					subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + ' - PTDI Design Organization',
-					html: `
-						<p>Hai ${data.r.nama},</p>
-						<p>Terimakasih telah mendaftar di aplikasi PTDI Design Organization.</p>
-						</br>
-						<p>Silahkan gunakan identitas berikut untuk login:</p>
-						<p>NIK: <b>${data.r.nik}</b></p>
-						<p>Password: <b>${data.r.password}</b></p>
-						</br>
-						<p>Terima kasih,</p>
-						<p>PTDI Design Organization</p>
-					`,
-					attachments: [
-						{
-							filename: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + '.pdf',
-							content: fs.createReadStream(pdfPath)
-						}
-					]
-				});
-			} catch (mailErr) {
-				console.error('Email user gagal (diabaikan):', mailErr);
-			}
-
-			// Kirim PDF surat pernyataan ke email Responsible Manager (non-fatal).
-			// Tanpa kredensial — password hanya dikirim ke user ybs.
+			// Kirim PDF surat pernyataan HANYA ke email Responsible Manager (non-fatal).
+			// (Tidak dikirim ke user.)
 			try {
 				const transporterMgr = nodemailer.createTransport({
 					host: '10.1.0.6',
 					port: 25,
 					secure: false,
+					auth: {
+						user: MAIL_USER,
+						pass: MAIL_PASS
+					},
 					tls: {
 						rejectUnauthorized: false
 					}
