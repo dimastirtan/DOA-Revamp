@@ -18,19 +18,20 @@ import nodemailer from 'nodemailer';
 // Default lokal 'surat_pernyataan' (relatif ke folder kerja aplikasi).
 const SURAT_PERNYATAAN_DIR = "\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
 
-// Pengirim email. 'noreply@...' DITOLAK mail server ("User unknown in virtual
-// mailbox table") karena bukan mailbox nyata → pakai mailbox yang ADA.
-const MAIL_FROM = 'das@indonesian-aerospace.com';
+// Pengirim email (yang tampil di inbox). PENTING: mail server mewajibkan alamat
+// pengirim = akun yang LOGIN (lihat MAIL_USER). Jadi untuk tampil sebagai
+// "jaminankelaikan", app harus login sebagai mailbox itu juga.
+const MAIL_FROM = 'jaminankelaikan@indonesian-aerospace.com';
 
 // TESTING: alihkan SEMUA penerima email ke alamat ini supaya tidak mengirim ke
 // email orang sungguhan saat uji coba. Set '' (string kosong) untuk PRODUKSI
 // (email dikirim ke penerima asli: user & responsible manager).
 const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
 
-// Mail server butuh LOGIN (error "not logged in"). Kredensial mailbox pengirim.
-// TODO (diisi user): isi MAIL_PASS dengan password mailbox das@ (atau akun SMTP
-// yang valid). MAIL_USER biasanya = alamat pengirim.
-const MAIL_USER = 'das@indonesian-aerospace.com';
+// Kredensial LOGIN SMTP. MAIL_USER = mailbox pengirim (= MAIL_FROM).
+// TODO (diisi user): isi MAIL_PASS dengan password mailbox jaminankelaikan@.
+// (Password das@ di bawah kemungkinan tidak cocok untuk akun ini.)
+const MAIL_USER = 'jaminankelaikan@indonesian-aerospace.com';
 const MAIL_PASS = 'Update123#';
 
 // Nomor form surat pernyataan (EST/Form 482). Dipakai di subject + nama file:
