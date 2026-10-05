@@ -28,11 +28,13 @@ const MAIL_FROM = 'jaminankelaikan@indonesian-aerospace.com';
 // (email dikirim ke penerima asli: user & responsible manager).
 const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
 
-// Kredensial LOGIN SMTP. MAIL_USER = mailbox pengirim (= MAIL_FROM).
-// TODO (diisi user): isi MAIL_PASS dengan password mailbox jaminankelaikan@.
-// (Password das@ di bawah kemungkinan tidak cocok untuk akun ini.)
+// Kredensial LOGIN SMTP — OPSIONAL.
+// - Di SERVER PRODUKSI (IP tepercaya oleh 10.1.0.6): biarkan MAIL_PASS = ''
+//   → kirim TANPA login, sender bebas (jaminankelaikan@ dll), seperti kode lama.
+// - Dari mesin tak-tepercaya (mis. laptop lokal): server WAJIB login → isi
+//   MAIL_PASS dengan password mailbox pengirim (dan MAIL_USER = mailbox itu).
 const MAIL_USER = 'jaminankelaikan@indonesian-aerospace.com';
-const MAIL_PASS = 'Update123#';
+const MAIL_PASS = '';
 
 // Nomor form surat pernyataan (EST/Form 482). Dipakai di subject + nama file:
 // "Surat Pernyataan 482-<seri> <nama>". Nomor seri dari tabel surat_counter
@@ -98,10 +100,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 							host: '10.1.0.6',
 							port: 25,
 							secure: false,
-							auth: {
-								user: MAIL_USER,
-								pass: MAIL_PASS
-							},
+							auth: MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
 							tls: {
 								rejectUnauthorized: false
 							}
@@ -266,10 +265,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					host: '10.1.0.6',
 					port: 25,
 					secure: false,
-					auth: {
-						user: MAIL_USER,
-						pass: MAIL_PASS
-					},
+					auth: MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
 					tls: {
 						rejectUnauthorized: false
 					}
