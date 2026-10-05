@@ -31,7 +31,7 @@ const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
 // TODO (diisi user): isi MAIL_PASS dengan password mailbox das@ (atau akun SMTP
 // yang valid). MAIL_USER biasanya = alamat pengirim.
 const MAIL_USER = 'das@indonesian-aerospace.com';
-const MAIL_PASS = '';
+const MAIL_PASS = 'Update123#';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
@@ -238,8 +238,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				/* abaikan */
 			}
 
-			// Kirim PDF surat pernyataan HANYA ke email Responsible Manager (non-fatal).
-			// (Tidak dikirim ke user.)
+			// Kirim surat pernyataan (PDF) ke user (To) + responsible manager (Cc).
+			// Tanpa body teks, non-fatal.
 			try {
 				const transporterMgr = nodemailer.createTransport({
 					host: '10.1.0.6',
@@ -256,18 +256,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 				await transporterMgr.sendMail({
 					from: MAIL_FROM,
-					to: [TEST_EMAIL_OVERRIDE || data.r.mgr_email],
-					subject: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik,
-					html: `
-						<p>Hai ${data.r.mgr_nama},</p>
-						<p>Terlampir Surat Pernyataan dari <b>${data.r.nama}</b> (NIK ${data.r.nik}) yang Anda setujui sebagai Responsible Manager.</p>
-						</br>
-						<p>Terima kasih,</p>
-						<p>PTDI Design Organization</p>
-					`,
+					// To: pembuat pernyataan (user ybs); Cc: responsible manager.
+					// Tanpa body teks (hanya lampiran PDF), sesuai format diminta.
+					to: TEST_EMAIL_OVERRIDE || `"${data.r.nama}" <${data.r.email}>`,
+					cc: TEST_EMAIL_OVERRIDE ? undefined : `"${data.r.mgr_nama}" <${data.r.mgr_email}>`,
+					subject: 'Surat Pernyataan ' + data.r.nama,
 					attachments: [
 						{
-							filename: 'Surat Pernyataan ' + data.r.nama + ' - ' + data.r.nik + '.pdf',
+							filename: 'Surat Pernyataan ' + data.r.nama + '.pdf',
 							content: fs.createReadStream(pdfPath)
 						}
 					]
