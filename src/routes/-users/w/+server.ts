@@ -2,7 +2,7 @@ import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { useraccounts } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import * as yup from 'yup';
 import md5 from 'blueimp-md5';
 import { registers } from '$lib/server/db/schema';
@@ -32,6 +32,11 @@ const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
 // yang valid). MAIL_USER biasanya = alamat pengirim.
 const MAIL_USER = 'das@indonesian-aerospace.com';
 const MAIL_PASS = 'Update123#';
+
+// Nomor form surat pernyataan (EST/Form 482). Dipakai di subject + nama file:
+// "Surat Pernyataan 482-<seri> <nama>". Nomor seri dari tabel surat_counter
+// (jalankan surat-counter.sql). Lihat surat-counter.sql.
+const SURAT_FORM_NO = '482';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
@@ -238,6 +243,21 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				/* abaikan */
 			}
 
+			// Nomor seri surat pernyataan (atomic, dari tabel surat_counter).
+			// Format subject/nama file: "Surat Pernyataan 482-<seri> <nama>".
+			let suratNo = '';
+			try {
+				const upd: any = await db.execute(
+					sql`UPDATE surat_counter SET last_no = LAST_INSERT_ID(last_no + 1) WHERE id = 1`
+				);
+				const serial = Number(upd?.insertId ?? upd?.[0]?.insertId ?? 0);
+				if (serial > 0) suratNo = SURAT_FORM_NO + '-' + String(serial).padStart(4, '0');
+			} catch (e) {
+				console.error('Gagal ambil nomor seri surat (lanjut tanpa nomor):', e);
+			}
+			const suratLabel =
+				'Surat Pernyataan' + (suratNo ? ' ' + suratNo : '') + ' ' + data.r.nama;
+
 			// Kirim surat pernyataan (PDF) ke user (To) + responsible manager (Cc).
 			// Tanpa body teks, non-fatal.
 			try {
@@ -260,10 +280,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					// Tanpa body teks (hanya lampiran PDF), sesuai format diminta.
 					to: TEST_EMAIL_OVERRIDE || `"${data.r.nama}" <${data.r.email}>`,
 					cc: TEST_EMAIL_OVERRIDE ? undefined : `"${data.r.mgr_nama}" <${data.r.mgr_email}>`,
-					subject: 'Surat Pernyataan ' + data.r.nama,
+					subject: suratLabel,
 					attachments: [
 						{
-							filename: 'Surat Pernyataan ' + data.r.nama + '.pdf',
+							filename: suratLabel + '.pdf',
 							content: fs.createReadStream(pdfPath)
 						}
 					]
