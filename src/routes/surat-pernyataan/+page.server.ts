@@ -9,6 +9,7 @@ import type { PageServerLoad } from './$types';
 // di-prefill dari useraccounts kalau ada.
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) redirect(302, '/login');
+	if (locals.user.userlevel === -1) redirect(302, '/dash'); // admin tak perlu
 
 	const sudah = await db.query.registers.findFirst({ where: eq(registers.nik, locals.user.id) });
 	if (sudah) redirect(302, '/dash');

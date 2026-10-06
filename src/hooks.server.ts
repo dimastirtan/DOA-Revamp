@@ -13,8 +13,7 @@ const md5 = (s: string) => crypto.createHash('md5').update(s).digest('hex');
 const ENFORCE_FIRST_LOGIN_PERNYATAAN = true;
 
 // Saklar fitur "wajib ganti password saat login pertama".
-// false = NONAKTIF sementara (untuk demo). Ubah ke true untuk mengaktifkan lagi.
-const ENFORCE_FIRST_LOGIN_PASSWORD_CHANGE = false;
+const ENFORCE_FIRST_LOGIN_PASSWORD_CHANGE = true;
 
 const minifyHtml: Handle = async ({ event, resolve }) => {
   return resolve(event, {
@@ -127,7 +126,8 @@ const authGuard: Handle = async ({ event, resolve }) => {
 const forcePernyataan: Handle = async ({ event, resolve }) => {
 	if (!ENFORCE_FIRST_LOGIN_PERNYATAAN) return resolve(event);
 	const u = event.locals.user;
-	if (u) {
+	// Admin (userlevel -1) tidak perlu mengisi surat pernyataan.
+	if (u && u.userlevel !== -1) {
 		const path = event.url.pathname;
 		const allowed =
 			path === '/surat-pernyataan' ||
