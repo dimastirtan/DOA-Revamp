@@ -138,21 +138,21 @@
 		<p class="font-medium">Dengan ini, saya tidak akan:</p>
 		<div class="flex flex-col gap-2">
 			<label class="flex items-start gap-3 border border-black/10 p-3 cursor-pointer {tos1 ? 'border-[#213C51] bg-[#213C51]/5' : ''}">
-				<input type="checkbox" class="mt-1 w-4 h-4 accent-[#213C51]" bind:checked={tos1} />
+				<input type="checkbox" class="mt-1 w-4 h-4 shrink-0 accent-[#213C51]" bind:checked={tos1} />
 				<span>
 					<span class="text-sm font-medium block">Duplikasi Data</span>
 					<span class="text-sm text-[#000]/70">Saya tidak akan menduplikat/mencetak semua/sebagian data dan informasi yang ada di website/portal.</span>
 				</span>
 			</label>
 			<label class="flex items-start gap-3 border border-black/10 p-3 cursor-pointer {tos2 ? 'border-[#213C51] bg-[#213C51]/5' : ''}">
-				<input type="checkbox" class="mt-1 w-4 h-4 accent-[#213C51]" bind:checked={tos2} />
+				<input type="checkbox" class="mt-1 w-4 h-4 shrink-0 accent-[#213C51]" bind:checked={tos2} />
 				<span>
 					<span class="text-sm font-medium block">Sharing Akun</span>
 					<span class="text-sm text-[#000]/70">Saya tidak akan memberikan kewenangan kepada orang lain.</span>
 				</span>
 			</label>
 			<label class="flex items-start gap-3 border border-black/10 p-3 cursor-pointer {tos3 ? 'border-[#213C51] bg-[#213C51]/5' : ''}">
-				<input type="checkbox" class="mt-1 w-4 h-4 accent-[#213C51]" bind:checked={tos3} />
+				<input type="checkbox" class="mt-1 w-4 h-4 shrink-0 accent-[#213C51]" bind:checked={tos3} />
 				<span>
 					<span class="text-sm font-medium block">Distribusi Data</span>
 					<span class="text-sm text-[#000]/70">Saya tidak mendistribusikan/membawa keluar area kerja/keluar kawasan perusahaan semua/sebagian data dan informasi yang ada di website/portal kepada pihak lain (pihak ketiga).</span>
