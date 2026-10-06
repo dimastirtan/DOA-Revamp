@@ -159,7 +159,8 @@ const forcePernyataan: Handle = async ({ event, resolve }) => {
 const forcePasswordChange: Handle = async ({ event, resolve }) => {
 	if (!ENFORCE_FIRST_LOGIN_PASSWORD_CHANGE) return resolve(event);
 	const u = event.locals.user;
-	if (u?.mustChangePassword) {
+	// Admin (userlevel -1) tidak dipaksa ganti password.
+	if (u && u.userlevel !== -1 && u.mustChangePassword) {
 		const path = event.url.pathname;
 		const allowed =
 			path === '/change-password' ||
