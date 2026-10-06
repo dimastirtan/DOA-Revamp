@@ -4,7 +4,7 @@
 	import '$lib/global.css';
 	import { mainTitle, subTitle } from '$lib/store';
 	import { onMount, tick } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 
@@ -23,7 +23,6 @@
 					headers: { Accept: 'application/json' }
 				});
 				if (res.status === 401) {
-					console.log('Session expired, refreshing...');
 					window.location.href = '/login';
 				}
 			} catch (e) {
@@ -53,7 +52,9 @@
 	});
 
 	onMount(() => {
-		if (browser && 'serviceWorker' in navigator) {
+		// SW hanya di PRODUKSI: di dev, precache-list menunjuk path build
+		// (/_app/immutable/...) yang belum ada → registrasi gagal & spam console.
+		if (browser && !dev && 'serviceWorker' in navigator) {
 			navigator.serviceWorker.register('/service-worker.js', {
 				type: 'classic',
 				scope: '/'

@@ -12,6 +12,9 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { gsap } from 'gsap';
+	// Matikan warning "target not found" (elemen animasi dekoratif kadang belum
+	// ter-render saat animasi dipanggil — tak perlu bising di console).
+	gsap.config({ nullTargetWarn: false });
 	import { onMount, onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { mainTitle } from '$lib/store';
@@ -300,9 +303,6 @@
 
 		$mainTitle = group.find((t) => t.value === value)?.label || '';
 
-		if (data.user) {
-			console.log(data.user);
-		}
 		updateTime();
 		gsap.fromTo(
 			'.plane',
@@ -504,7 +504,6 @@
 						data = { ...data, doa: res };
 						value = res.def;
 						divisiLabel = res.divisiLabel || '';
-						console.log(data);
 					}
 				});
 			}

@@ -82,14 +82,14 @@ function handleCancel() {
 				<button
 					type="button"
 					class="flex-1 px-4 py-3 text-sm font-medium bg-[#677787] text-white hover:bg-[#677787]/90 transition-colors focus:outline-none focus:ring-2 focus:ring-[#677787]/50"
-					onclick={() => { console.log('CANCEL CLICKED'); handleCancel(); }}
+					onclick={() => handleCancel()}
 				>
 					{cancelText}
 				</button>
 				<button
 					type="button"
 					class="flex-1 px-4 py-3 text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 {getVariantClasses(variant)}"
-					onclick={() => { console.log('CONFIRM CLICKED'); handleConfirm(); }}
+					onclick={() => handleConfirm()}
 				>
 					{confirmText}
 				</button>

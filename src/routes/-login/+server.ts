@@ -33,8 +33,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		return json({ error: "Identitas yang kamu masukkan salah." }, { status: 400 });
 	}
 
-	console.log(user)
-
 	if (user.userlevel === 0 || user.activated === 'N') {
 		return json({ error: "Akunmu belum diaktivasi oleh admin." }, { status: 400 });
 	}

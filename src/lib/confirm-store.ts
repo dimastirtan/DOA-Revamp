@@ -36,9 +36,7 @@ function createConfirmStore() {
 	}
 
 	function close(value: boolean) {
-		console.log('close called with value:', value);
 		update((state) => {
-			console.log('current resolve:', state.resolve);
 			if (state.resolve) {
 				state.resolve(value);
 			}
