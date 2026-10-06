@@ -18,23 +18,23 @@ import nodemailer from 'nodemailer';
 // Default lokal 'surat_pernyataan' (relatif ke folder kerja aplikasi).
 const SURAT_PERNYATAAN_DIR = "\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
 
-// Pengirim email (yang tampil di inbox). PENTING: mail server mewajibkan alamat
-// pengirim = akun yang LOGIN (lihat MAIL_USER). Jadi untuk tampil sebagai
-// "jaminankelaikan", app harus login sebagai mailbox itu juga.
-const MAIL_FROM = 'jaminankelaikan@indonesian-aerospace.com';
+// ── Konfigurasi Email ───────────────────────────────────────────────────────
+// SATU tempat untuk semua setting email. Mau ganti akun/server? ubah DI SINI saja.
+const MAIL_HOST = '10.1.0.6';           // server SMTP
+const MAIL_PORT = 25;                   // port SMTP
+const MAIL_FROM = 'das@indonesian-aerospace.com'; // pengirim yang tampil (= MAIL_USER)
+const MAIL_USER = 'das@indonesian-aerospace.com'; // akun login SMTP
+const MAIL_PASS = 'Update123#';         // password login; kosong '' = tanpa auth
+// Catatan: server mewajibkan FROM = akun yang LOGIN. auth dipakai hanya bila
+// MAIL_PASS terisi (kosong → tanpa login; cocok utk relay IP tepercaya spt prod).
+// Kalau nanti pindah ke Gmail:
+//   MAIL_HOST='smtp.gmail.com'; MAIL_PORT=587;
+//   MAIL_FROM = MAIL_USER = 'jaminankelaikan@gmail.com'; MAIL_PASS=<app password>
 
 // TESTING: alihkan SEMUA penerima email ke alamat ini supaya tidak mengirim ke
 // email orang sungguhan saat uji coba. Set '' (string kosong) untuk PRODUKSI
 // (email dikirim ke penerima asli: user & responsible manager).
 const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
-
-// Kredensial LOGIN SMTP — OPSIONAL.
-// - Di SERVER PRODUKSI (IP tepercaya oleh 10.1.0.6): biarkan MAIL_PASS = ''
-//   → kirim TANPA login, sender bebas (jaminankelaikan@ dll), seperti kode lama.
-// - Dari mesin tak-tepercaya (mis. laptop lokal): server WAJIB login → isi
-//   MAIL_PASS dengan password mailbox pengirim (dan MAIL_USER = mailbox itu).
-const MAIL_USER = 'jaminankelaikan@indonesian-aerospace.com';
-const MAIL_PASS = '';
 
 // Nomor form surat pernyataan (EST/Form 482). Dipakai di subject + nama file:
 // "Surat Pernyataan 482-<seri> <nama>". Nomor seri dari tabel surat_counter
@@ -97,8 +97,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 					if (registerInfo) {
 						const transporter = nodemailer.createTransport({
-							host: '10.1.0.6',
-							port: 25,
+							host: MAIL_HOST,
+							port: MAIL_PORT,
 							secure: false,
 							auth: MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
 							tls: {
@@ -262,8 +262,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			// Tanpa body teks, non-fatal.
 			try {
 				const transporterMgr = nodemailer.createTransport({
-					host: '10.1.0.6',
-					port: 25,
+					host: MAIL_HOST,
+					port: MAIL_PORT,
 					secure: false,
 					auth: MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
 					tls: {
