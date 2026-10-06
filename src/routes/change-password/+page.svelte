@@ -96,7 +96,10 @@
 		</div>
 
 		{#if error}
-			<p class="text-sm text-red-600 font-medium">{error}</p>
+			<div class="flex items-center gap-2 border border-red-400 bg-red-50 px-3 py-2.5">
+				<img src="/exclamation.svg" class="w-4 h-4 shrink-0" alt="" />
+				<p class="text-sm text-red-700! font-medium">{error}</p>
+			</div>
 		{/if}
 
 		<button

@@ -144,14 +144,14 @@
 	<div class="flex items-center gap-3 flex-wrap">
 		<p class="text-xs opacity-60">Centang divisi yang boleh mengakses procedure. Perubahan langsung tersimpan.</p>
 		{#if saveError}
-			<p class="text-xs text-red-600 font-medium">{saveError}</p>
+			<p class="text-xs text-red-600! font-medium">{saveError}</p>
 		{/if}
 	</div>
 
 	{#if error}
 		<div class="bg-red-50 border border-red-200 p-3 flex gap-2 items-center">
-			<p class="font-medium text-red-700 text-sm">Error:</p>
-			<p class="text-sm text-red-600 font-mono">{error}</p>
+			<p class="font-medium text-red-700! text-sm">Error:</p>
+			<p class="text-sm text-red-600! font-mono">{error}</p>
 		</div>
 	{/if}
 
