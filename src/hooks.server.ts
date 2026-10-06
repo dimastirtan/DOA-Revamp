@@ -3,8 +3,14 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { type Handle, redirect } from '@sveltejs/kit';
 import { minify } from 'html-minifier';
 import crypto from 'crypto';
+import { db } from '$lib/server/db';
+import { registers } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 
 const md5 = (s: string) => crypto.createHash('md5').update(s).digest('hex');
+
+// Saklar "wajib isi Surat Pernyataan saat login pertama" (sebelum ganti password).
+const ENFORCE_FIRST_LOGIN_PERNYATAAN = true;
 
 // Saklar fitur "wajib ganti password saat login pertama".
 // false = NONAKTIF sementara (untuk demo). Ubah ke true untuk mengaktifkan lagi.
@@ -116,6 +122,36 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+// Paksa isi Surat Pernyataan saat login pertama (SEBELUM ganti password).
+// Penanda "sudah kirim" = ada baris di tabel registers utk NIK user.
+const forcePernyataan: Handle = async ({ event, resolve }) => {
+	if (!ENFORCE_FIRST_LOGIN_PERNYATAAN) return resolve(event);
+	const u = event.locals.user;
+	if (u) {
+		const path = event.url.pathname;
+		const allowed =
+			path === '/surat-pernyataan' ||
+			path.startsWith('/-users/w') ||
+			path.startsWith('/-logout');
+		const guarded =
+			path === '/' || ['/dash', '/-users/r', '/-doa'].some((p) => path.startsWith(p));
+
+		if (guarded && !allowed) {
+			const sudah = await db.query.registers.findFirst({ where: eq(registers.nik, u.id) });
+			if (!sudah) {
+				if (path.startsWith('/-')) {
+					return new Response(
+						JSON.stringify({ success: false, error: 'MUST_SUBMIT_PERNYATAAN' }),
+						{ status: 403, headers: { 'content-type': 'application/json' } }
+					);
+				}
+				return new Response(null, { status: 303, headers: { location: '/surat-pernyataan' } });
+			}
+		}
+	}
+	return resolve(event);
+};
+
 // Paksa ganti password saat login pertama (password masih default == NIK).
 // mustChangePassword dihitung di getUserAttributes (auth.ts). Selama true, semua
 // path aplikasi terlindungi dialihkan ke /change-password, kecuali halaman ganti
@@ -149,6 +185,7 @@ const forcePasswordChange: Handle = async ({ event, resolve }) => {
 export const handle: Handle = sequence(
 	luciaAuth,
 	authGuard,
+	forcePernyataan,
 	forcePasswordChange,
 	minifyHtml
 );

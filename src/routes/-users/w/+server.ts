@@ -41,6 +41,93 @@ const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
 // (jalankan surat-counter.sql). Lihat surat-counter.sql.
 const SURAT_FORM_NO = '482';
 
+// Buat surat pernyataan (isi template → PDF → simpan ke server → email manager).
+// Dipakai oleh register (data.r) & first-login (data.p). Non-fatal utk email.
+async function buatDanKirimSurat(info: {
+	nama: string;
+	nik: string;
+	org: string;
+	org_lokasi: string;
+	email: string;
+	mgr_nama: string;
+	mgr_nik: string;
+	mgr_email: string;
+}) {
+	const content = fs.readFileSync('template.docx');
+	const zip = new PizZip(content);
+	const xmlFile = zip.file('word/document.xml');
+	if (xmlFile) {
+		let xml = xmlFile.asText();
+		const replacements: Record<string, string> = {
+			nama: info.nama,
+			nik: info.nik,
+			org: info.org,
+			org_lokasi: info.org_lokasi,
+			email: info.email,
+			mgr_nama: info.mgr_nama,
+			mgr_nik: info.mgr_nik,
+			tanggal: new Intl.DateTimeFormat('id-ID', {
+				weekday: 'long',
+				day: 'numeric',
+				month: 'long',
+				year: 'numeric'
+			}).format(new Date())
+		};
+		// Lookahead hanya berhenti di tag paragraf asli (bukan <w:proofErr> dsb).
+		xml = xml.replace(/\{\{(?:(?!<w:p[ >/]).)*?\}\}/gs, (match) => {
+			const cleanKey = match.replace(/<[^>]+>/g, '').replace(/[\{\}]/g, '').trim();
+			if (replacements[cleanKey] !== undefined) return replacements[cleanKey];
+			return match;
+		});
+		zip.file('word/document.xml', xml);
+	}
+
+	const out = zip.generate({ type: 'nodebuffer' });
+	if (!fs.existsSync('docx')) fs.mkdirSync('docx', { recursive: true });
+	const docxPath = 'docx/' + info.nik + '.docx';
+	fs.writeFileSync(docxPath, out);
+
+	if (!fs.existsSync(SURAT_PERNYATAAN_DIR)) fs.mkdirSync(SURAT_PERNYATAAN_DIR, { recursive: true });
+	const pdfPath = path.join(SURAT_PERNYATAAN_DIR, 'Surat Pernyataan ' + info.nama + '.pdf');
+	topdf.convert(docxPath, pdfPath);
+	try {
+		fs.unlinkSync(docxPath);
+	} catch {
+		/* abaikan */
+	}
+
+	// Nomor seri atomic.
+	let suratNo = '';
+	try {
+		const upd: any = await db.execute(
+			sql`UPDATE surat_counter SET last_no = LAST_INSERT_ID(last_no + 1) WHERE id = 1`
+		);
+		const serial = Number(upd?.insertId ?? upd?.[0]?.insertId ?? 0);
+		if (serial > 0) suratNo = SURAT_FORM_NO + '-' + String(serial).padStart(4, '0');
+	} catch (e) {
+		console.error('Gagal ambil nomor seri surat (lanjut tanpa nomor):', e);
+	}
+	const suratLabel = 'Surat Pernyataan' + (suratNo ? ' ' + suratNo : '') + ' ' + info.nama;
+
+	try {
+		const transporter = nodemailer.createTransport({
+			host: MAIL_HOST,
+			port: MAIL_PORT,
+			secure: false,
+			auth: MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
+			tls: { rejectUnauthorized: false }
+		});
+		await transporter.sendMail({
+			from: MAIL_FROM,
+			to: `"${info.mgr_nama}" <${info.mgr_email}>`,
+			subject: suratLabel,
+			attachments: [{ filename: suratLabel + '.pdf', content: fs.createReadStream(pdfPath) }]
+		});
+	} catch (mailErr) {
+		console.error('Email surat pernyataan gagal (diabaikan):', mailErr);
+	}
+}
+
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
 
@@ -180,114 +267,76 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				mgrNik: data.r.mgr_nik
 			});
 
-			const content = fs.readFileSync('template.docx');
-			const zip = new PizZip(content);
+			await buatDanKirimSurat({
+				nama: data.r.nama,
+				nik: data.r.nik,
+				org: data.r.org,
+				org_lokasi: data.r.org_lokasi,
+				email: data.r.email,
+				mgr_nama: data.r.mgr_nama,
+				mgr_nik: data.r.mgr_nik,
+				mgr_email: data.r.mgr_email
+			});
 
-			const xmlFile = zip.file('word/document.xml');
-			if (xmlFile) {
-				let xml = xmlFile.asText();
+			return json({ success: true });
+		}
 
-				const replacements: Record<string, string> = {
-					nama: data.r.nama,
-					nik: data.r.nik,
-					org: data.r.org,
-					org_lokasi: data.r.org_lokasi,
-					email: data.r.email,
-					mgr_nama: data.r.mgr_nama,
-					mgr_nik: data.r.mgr_nik,
-					tanggal: new Intl.DateTimeFormat('id-ID', {
-						weekday: 'long',
-						day: 'numeric',
-						month: 'long',
-						year: 'numeric'
-					}).format(new Date())
-				};
+		// First-login: surat pernyataan untuk user yang SUDAH punya akun (tidak
+		// membuat akun baru). NIK & nama diambil dari SESSION (tak dari form).
+		if (data.p) {
+			if (!locals.user) return json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-				// Lookahead HANYA berhenti di tag paragraf asli (<w:p> / <w:p ...),
-				// BUKAN <w:proofErr>/<w:pPr> dsb yang juga diawali "<w:p". Sebelumnya
-				// pakai (?!<w:p) → placeholder yang dibungkus <w:proofErr> (nik,
-				// org_lokasi, tanggal, mgr_*) tak ikut keganti. Flag s utk jaga-jaga
-				// kalau placeholder membentang antar baris.
-				xml = xml.replace(/\{\{(?:(?!<w:p[ >/]).)*?\}\}/gs, (match) => {
-					const cleanKey = match
-						.replace(/<[^>]+>/g, '')
-						.replace(/[\{\}]/g, '')
-						.trim();
-					if (replacements[cleanKey] !== undefined) {
-						return replacements[cleanKey];
-					}
-					return match;
-				});
+			const nik = locals.user.id;
+			const nama = locals.user.configPenghasil || nik;
 
-				zip.file('word/document.xml', xml);
-			}
+			const schema = yup.object({
+				email: yup
+					.string()
+					.required()
+					.email()
+					.matches(/@indonesian-aerospace\.com$/, 'Email harus @indonesian-aerospace.com'),
+				org: yup.string().required(),
+				org_lokasi: yup.string().required(),
+				mgr_nama: yup.string().required(),
+				mgr_nik: yup.string().required(),
+				mgr_email: yup
+					.string()
+					.required()
+					.email()
+					.matches(/@indonesian-aerospace\.com$/, 'Email harus @indonesian-aerospace.com')
+			});
+			await schema.validate(data.p);
 
-			const out = zip.generate({ type: 'nodebuffer' });
-
-			// Simpan docx sementara → konversi ke PDF → taruh di folder SERVER →
-			// hapus docx. Surat pernyataan kini DISIMPAN KE SERVER, bukan lagi
-			// dikirim via email ke admin + manager.
-			if (!fs.existsSync('docx')) fs.mkdirSync('docx', { recursive: true });
-			const docxPath = 'docx/' + data.r.nik + '.docx';
-			fs.writeFileSync(docxPath, out);
-
-			if (!fs.existsSync(SURAT_PERNYATAAN_DIR)) {
-				fs.mkdirSync(SURAT_PERNYATAAN_DIR, { recursive: true });
-			}
-			const pdfPath = path.join(SURAT_PERNYATAAN_DIR, data.r.nik + '.pdf');
-			// Konversi butuh Word (Windows) / unoconv+LibreOffice (Linux) di server.
-			topdf.convert(docxPath, pdfPath);
-			try {
-				fs.unlinkSync(docxPath);
-			} catch {
-				/* abaikan */
-			}
-
-			// Nomor seri surat pernyataan (atomic, dari tabel surat_counter).
-			// Format subject/nama file: "Surat Pernyataan 482-<seri> <nama>".
-			let suratNo = '';
-			try {
-				const upd: any = await db.execute(
-					sql`UPDATE surat_counter SET last_no = LAST_INSERT_ID(last_no + 1) WHERE id = 1`
+			// registers = penanda "sudah kirim surat pernyataan".
+			const sudah = await db.query.registers.findFirst({ where: eq(registers.nik, nik) });
+			if (sudah) {
+				return json(
+					{ success: false, error: 'Surat pernyataan sudah pernah dikirim.' },
+					{ status: 400 }
 				);
-				const serial = Number(upd?.insertId ?? upd?.[0]?.insertId ?? 0);
-				if (serial > 0) suratNo = SURAT_FORM_NO + '-' + String(serial).padStart(4, '0');
-			} catch (e) {
-				console.error('Gagal ambil nomor seri surat (lanjut tanpa nomor):', e);
 			}
-			const suratLabel =
-				'Surat Pernyataan' + (suratNo ? ' ' + suratNo : '') + ' ' + data.r.nama;
 
-			// Kirim surat pernyataan (PDF) ke user (To) + responsible manager (Cc).
-			// Tanpa body teks, non-fatal.
-			try {
-				const transporterMgr = nodemailer.createTransport({
-					host: MAIL_HOST,
-					port: MAIL_PORT,
-					secure: false,
-					auth: MAIL_PASS ? { user: MAIL_USER, pass: MAIL_PASS } : undefined,
-					tls: {
-						rejectUnauthorized: false
-					}
-				});
+			await db.insert(registers).values({
+				email: data.p.email,
+				nama,
+				nik,
+				org: data.p.org,
+				orgLokasi: data.p.org_lokasi,
+				mgrEmail: data.p.mgr_email,
+				mgrNama: data.p.mgr_nama,
+				mgrNik: data.p.mgr_nik
+			});
 
-				await transporterMgr.sendMail({
-					from: MAIL_FROM,
-					// To: pembuat pernyataan (user ybs); Cc: responsible manager.
-					// Tanpa body teks (hanya lampiran PDF), sesuai format diminta.
-					to: TEST_EMAIL_OVERRIDE || `"${data.r.nama}" <${data.r.email}>`,
-					cc: TEST_EMAIL_OVERRIDE ? undefined : `"${data.r.mgr_nama}" <${data.r.mgr_email}>`,
-					subject: suratLabel,
-					attachments: [
-						{
-							filename: suratLabel + '.pdf',
-							content: fs.createReadStream(pdfPath)
-						}
-					]
-				});
-			} catch (mailErr) {
-				console.error('Email manager gagal (diabaikan):', mailErr);
-			}
+			await buatDanKirimSurat({
+				nama,
+				nik,
+				org: data.p.org,
+				org_lokasi: data.p.org_lokasi,
+				email: data.p.email,
+				mgr_nama: data.p.mgr_nama,
+				mgr_nik: data.p.mgr_nik,
+				mgr_email: data.p.mgr_email
+			});
 
 			return json({ success: true });
 		}
