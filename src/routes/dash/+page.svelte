@@ -232,21 +232,46 @@
 
 	const bukaDoa = async (doa: any) => {
 		await logActivity(doa);
-		const isForm = !!(selectedDoaTitle && selectedDoaTitle.toUpperCase().includes('FORM'));
-		if (PDF_MODE === 'legacy') {
+
+		// Deteksi berbasis DATA dokumen (bukan judul kategori — judul tak andal
+		// saat dibuka dari hasil pencarian).
+		//   - Tipe Form (form/form2/standard) = template → SELALU diunduh, apa pun
+		//     ekstensinya (termasuk EST Form yang file-nya PDF). Tanpa watermark,
+		//     tanpa viewer.
+		//   - File non-PDF lain → juga diunduh (tak bisa ditampilkan di viewer).
+		//   - Selain itu (dokumen PDF non-form) → viewer in-app ber-watermark.
+		const isForm = doa.type === 'form' || doa.type === 'form2' || doa.type === 'standard';
+		const isPdf = /\.pdf$/i.test(doa.nmpath || doa.pdf || '');
+
+		if (isForm || !isPdf) {
+			// Unduh langsung via proxy same-origin (URL portalditek tetap tersembunyi,
+			// akses tetap tervalidasi sesi). Proxy mengutamakan kolom `pdf` = file
+			// editable (Word) bila ada, jatuh ke nmpath bila tidak.
+			const q = new URLSearchParams({
+				nmpath: doa.nmpath ?? '',
+				pdf: doa.pdf ?? '',
+				jdl: doa.title ?? '',
+				form: '1',
+				dl: '1'
+			});
+			const a = document.createElement('a');
+			a.href = `/-doa/pdf?${q.toString()}`;
+			a.rel = 'noopener';
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+		} else if (PDF_MODE === 'legacy') {
 			window.open(
-				isForm
-					? `http://portalditek.indonesian-aerospace.com/webdoa/${doa.pdf || doa.nmpath}`
-					: `http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+				`http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
 				'_blank'
 			);
 		} else {
-			// Viewer in-app: file diambil via proxy same-origin (/-doa/pdf),
-			// identitas watermark diisi server dari session di /dash/baca.
+			// Dokumen PDF non-form → viewer in-app, identitas watermark diisi server
+			// dari session di /dash/baca.
 			const q = new URLSearchParams({
 				nmpath: doa.nmpath ?? '',
 				jdl: doa.title ?? '',
-				form: isForm ? '1' : '0',
+				form: '0',
 				pdf: doa.pdf ?? ''
 			});
 			window.open(`/dash/baca?${q.toString()}`, '_blank');

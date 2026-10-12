@@ -56,9 +56,7 @@
 			'.plane',
 			{
 				delay: 0,
-				opacity: 0,
-				x: -500,
-				y: 500
+				opacity: 1,
 			},
 			{
 				delay: 0,
@@ -146,9 +144,6 @@
 		if (response.ok) {
 			gsap.to('.plane', {
 				duration: 1,
-				x: 500,
-				y: -500,
-				ease: 'power3.out'
 			});
 
 			setTimeout(async () => {
@@ -230,21 +225,9 @@
 				</div>
 			</div>
 			<div class="w-2/3 flex relative overflow-hidden">
-				<!-- Top-right cloud -->
-				<div class="cloud cloud-1 absolute pointer-events-none z-50 rounded-full blur-lg w-[180px] h-[90px]"></div>
-				<!-- Top-center cloud -->
-				<div class="cloud cloud-2 absolute pointer-events-none z-50 rounded-full blur-md w-[220px] h-[110px]"></div>
-				<!-- Middle-right cloud -->
-				<div class="cloud cloud-3 absolute pointer-events-none z-10 rounded-full blur-lg w-[160px] h-[80px]"></div>
-				<!-- Top-left cloud -->
-				<div class="cloud cloud-4 absolute pointer-events-none z-50 rounded-full blur-md w-[200px] h-[100px]"></div>
-				<!-- Bottom-right cloud -->
-				<div class="cloud cloud-5 absolute pointer-events-none z-10 rounded-full blur-lg w-[140px] h-[70px]"></div>
-				<!-- Center cloud -->
-				<div class="cloud cloud-6 absolute pointer-events-none z-50 rounded-full blur-md w-[190px] h-[95px]"></div>
-				<div class="planex absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+				<div class="absolute inset-0 flex items-center justify-center z-40">
 					<div class="plane opacity-0">
-						<img src="plane.svg?v=2" class="plane-img w-60" alt="" />
+						<img src="logo.png?v=2" class="plane-img w-100" alt="" />
 					</div>
 				</div>
 				<img src="bg.jpg" class="w-full pointer-events-none" alt="" />

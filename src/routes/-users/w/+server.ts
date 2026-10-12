@@ -8,38 +8,85 @@ import md5 from 'blueimp-md5';
 import { registers } from '$lib/server/db/schema';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
+import { execFileSync } from 'child_process';
 import PizZip from 'pizzip';
 // @ts-ignore - paket docx2pdf-converter tak punya type declaration
 import topdf from 'docx2pdf-converter';
 import nodemailer from 'nodemailer';
+// Env RUNTIME (adapter-node membaca process.env saat server start, BUKAN saat build).
+// Ubah nilai lalu RESTART proses `node build` → berlaku tanpa build ulang.
+import { env } from '$env/dynamic/private';
 
-// TODO (diisi user): folder tujuan di server untuk menyimpan PDF surat pernyataan.
-// Mis. '\\\\server\\share\\surat' (UNC Windows) atau '/var/doa/surat' (Linux).
-// Default lokal 'surat_pernyataan' (relatif ke folder kerja aplikasi).
-const SURAT_PERNYATAAN_DIR = "\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
+// ── Konfigurasi (dibaca dari ENVIRONMENT saat RUNTIME) ───────────────────────
+// Semua di bawah bisa di-override lewat environment variable TANPA build ulang.
+// Nilai setelah '??' = default kalau env TIDAK diset (= nilai lama, biar tetap
+// jalan apa adanya). Cara ganti saat sudah running: ubah env (mis. file .env)
+// lalu RESTART proses `node build`. Penting utk MAIL_PASS yang suka dipaksa ganti.
+// Lihat .env.example.
 
-// ── Konfigurasi Email ───────────────────────────────────────────────────────
-// SATU tempat untuk semua setting email. Mau ganti akun/server? ubah DI SINI saja.
-const MAIL_HOST = '10.1.0.6';           // server SMTP
-const MAIL_PORT = 25;                   // port SMTP
-const MAIL_FROM = 'das@indonesian-aerospace.com'; // pengirim yang tampil (= MAIL_USER)
-const MAIL_USER = 'das@indonesian-aerospace.com'; // akun login SMTP
-const MAIL_PASS = 'Update123#';         // password login; kosong '' = tanpa auth
-// Catatan: server mewajibkan FROM = akun yang LOGIN. auth dipakai hanya bila
-// MAIL_PASS terisi (kosong → tanpa login; cocok utk relay IP tepercaya spt prod).
-// Kalau nanti pindah ke Gmail:
-//   MAIL_HOST='smtp.gmail.com'; MAIL_PORT=587;
-//   MAIL_FROM = MAIL_USER = 'jaminankelaikan@gmail.com'; MAIL_PASS=<app password>
+// Folder tujuan penyimpanan PDF surat pernyataan (UNC Windows / path Linux).
+const SURAT_PERNYATAAN_DIR =
+	env.SURAT_PERNYATAAN_DIR ??
+	"\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
 
-// TESTING: alihkan SEMUA penerima email ke alamat ini supaya tidak mengirim ke
-// email orang sungguhan saat uji coba. Set '' (string kosong) untuk PRODUKSI
-// (email dikirim ke penerima asli: user & responsible manager).
-const TEST_EMAIL_OVERRIDE = 'das@indonesian-aerospace.com';
+// ── Email ──
+const MAIL_HOST = env.MAIL_HOST ?? '10.1.0.6';            // server SMTP
+const MAIL_PORT = Number(env.MAIL_PORT ?? 25);            // port SMTP
+const MAIL_FROM = env.MAIL_FROM ?? 'das@indonesian-aerospace.com'; // pengirim tampil (= MAIL_USER)
+const MAIL_USER = env.MAIL_USER ?? 'das@indonesian-aerospace.com'; // akun login SMTP
+const MAIL_PASS = env.MAIL_PASS ?? 'Update123#';          // password login; '' = tanpa auth
+// Server mewajibkan FROM = akun yang LOGIN. auth dipakai hanya bila MAIL_PASS terisi
+// (kosong → tanpa login; cocok utk relay IP tepercaya spt prod).
+// Pindah ke Gmail: MAIL_HOST=smtp.gmail.com, MAIL_PORT=587,
+//   MAIL_FROM=MAIL_USER=<akun>@gmail.com, MAIL_PASS=<app password>.
+
+// TESTING: alihkan SEMUA penerima email ke alamat ini supaya tak mengirim ke
+// email orang sungguhan saat uji coba. Set KOSONG (TEST_EMAIL_OVERRIDE= di env)
+// untuk PRODUKSI → email dikirim ke penerima asli (user & responsible manager).
+const TEST_EMAIL_OVERRIDE = env.TEST_EMAIL_OVERRIDE ?? 'das@indonesian-aerospace.com';
 
 // Nomor form surat pernyataan (EST/Form 482). Dipakai di subject + nama file:
-// "Surat Pernyataan 482-<seri> <nama>". Nomor seri dari tabel surat_counter
-// (jalankan surat-counter.sql). Lihat surat-counter.sql.
-const SURAT_FORM_NO = '482';
+// "Surat Pernyataan 482-<seri> <nama>". Nomor seri dari tabel surat_counter.
+const SURAT_FORM_NO = env.SURAT_FORM_NO ?? '482';
+
+// Konversi docx → PDF, lintas platform:
+//  - Windows (dev): Microsoft Word via paket docx2pdf-converter.
+//  - Linux/Mac (server Ubuntu): LibreOffice headless LANGSUNG (cukup paket
+//    `libreoffice`, TANPA unoconv). Pakai profil LibreOffice sementara supaya
+//    tak bentrok dgn instance lain & tak bergantung pada $HOME user service.
+//    Override lokasi binary lewat env SOFFICE_BIN bila perlu.
+function convertDocxToPdf(docxPath: string, pdfPath: string) {
+	if (process.platform === 'win32') {
+		topdf.convert(docxPath, pdfPath);
+		return;
+	}
+	const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'surat-pdf-'));
+	const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'lo-profile-'));
+	try {
+		execFileSync(
+			process.env.SOFFICE_BIN || 'soffice',
+			[
+				'--headless',
+				'--nologo',
+				'--norestore',
+				'-env:UserInstallation=file://' + profile,
+				'--convert-to',
+				'pdf',
+				'--outdir',
+				outDir,
+				docxPath
+			],
+			{ stdio: 'ignore', timeout: 120000 }
+		);
+		const produced = path.join(outDir, path.basename(docxPath).replace(/\.docx?$/i, '.pdf'));
+		// copy (bukan rename): temp → share bisa beda filesystem (EXDEV).
+		fs.copyFileSync(produced, pdfPath);
+	} finally {
+		fs.rmSync(outDir, { recursive: true, force: true });
+		fs.rmSync(profile, { recursive: true, force: true });
+	}
+}
 
 // Buat surat pernyataan (isi template → PDF → simpan ke server → email manager).
 // Dipakai oleh register (data.r) & first-login (data.p). Non-fatal utk email.
@@ -53,7 +100,9 @@ async function buatDanKirimSurat(info: {
 	mgr_nik: string;
 	mgr_email: string;
 }) {
-	const content = fs.readFileSync('template.docx');
+	// Default relatif (butuh WorkingDirectory=root project). Override absolut via env
+	// SURAT_TEMPLATE kalau service dijalankan dari direktori lain.
+	const content = fs.readFileSync(env.SURAT_TEMPLATE ?? 'template.docx');
 	const zip = new PizZip(content);
 	const xmlFile = zip.file('word/document.xml');
 	if (xmlFile) {
@@ -83,15 +132,17 @@ async function buatDanKirimSurat(info: {
 	}
 
 	const out = zip.generate({ type: 'nodebuffer' });
-	if (!fs.existsSync('docx')) fs.mkdirSync('docx', { recursive: true });
-	const docxPath = 'docx/' + info.nik + '.docx';
+	// Temp docx di OS temp dir (bukan folder relatif) → tak bergantung CWD,
+	// aman di service Linux, dan auto-bersih.
+	const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'surat-docx-'));
+	const docxPath = path.join(tmpDir, info.nik + '.docx');
 	fs.writeFileSync(docxPath, out);
 
 	if (!fs.existsSync(SURAT_PERNYATAAN_DIR)) fs.mkdirSync(SURAT_PERNYATAAN_DIR, { recursive: true });
 	const pdfPath = path.join(SURAT_PERNYATAAN_DIR, 'Surat Pernyataan ' + info.nama + '.pdf');
-	topdf.convert(docxPath, pdfPath);
+	convertDocxToPdf(docxPath, pdfPath);
 	try {
-		fs.unlinkSync(docxPath);
+		fs.rmSync(tmpDir, { recursive: true, force: true });
 	} catch {
 		/* abaikan */
 	}

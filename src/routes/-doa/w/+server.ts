@@ -154,8 +154,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			data = await request.json();
 		}
 
-		console.log(data);
-
 		if (data.d && data.e) {
 			return await db
 				.update(standard)
@@ -201,9 +199,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				// up.php bisa balikin base catia ATAU webdoa (untuk form).
 				// toRelative() menangani keduanya.
 				nmpath = toRelative(uploadResult.path);
-				if (uploadResult.is_pdf) {
-					pdf = nmpath;
-				}
+				// Satu file per upload → nmpath & pdf sama-sama menunjuk file BARU.
+				// Dulu pdf hanya diset saat is_pdf, sehingga Form .doc/.docx yang
+				// diedit menyimpan path LAMA di kolom pdf → tetap mengunduh file lama.
+				// (CATATAN: hanya dilakukan saat ADA file baru. Edit metadata-saja
+				//  TIDAK menyentuh nmpath/pdf, jadi EST Form dua-file tak rusak.)
+				pdf = nmpath;
 			}
 
 			const standardData: any = {
@@ -212,13 +213,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				revision: entry.revision,
 				title: entry.title,
 				nmpath: nmpath,
-				remark: 'Active',
+				// type 'standard' memakai kolom remark sebagai REFERENSI (mis. "NDS 4456"),
+				// bukan flag. Jangan timpa jadi 'Active' saat edit (data loss).
+				remark: entry.type === 'standard' ? (entry.remark ?? 'Active') : 'Active',
 				pdf: pdf
 			};
-
-			if (entry.type === 'form2' || entry.type === 'form') {
-				standardData.pdf = standardData.nmpath;
-			}
 
 			if (entry.date) {
 				standardData.date = `${entry.date.year}-${String(entry.date.month).padStart(2, '0')}-${String(entry.date.day).padStart(2, '0')}`;
