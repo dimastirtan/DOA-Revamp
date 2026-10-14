@@ -262,7 +262,7 @@
 			a.remove();
 		} else if (PDF_MODE === 'legacy') {
 			window.open(
-				`http://portalditek.indonesian-aerospace.com/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+				`http://10.1.95.116/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
 				'_blank'
 			);
 		} else {

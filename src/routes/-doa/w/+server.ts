@@ -14,7 +14,7 @@ import { env } from '$env/dynamic/private';
 const execFileAsync = promisify(execFile);
 
 // Endpoint upload dokumen (up.php). Env RUNTIME → bisa dipindah tanpa rebuild.
-const UPLOAD_URL = env.UPLOAD_URL ?? 'http://10.1.95.76/webdoa/up.php';
+const UPLOAD_URL = env.UPLOAD_URL ?? 'http://10.1.95.116/webdoa/up.php';
 
 // ─── Path helpers ───────────────────────────────────────────────────────
 // Base path absolut yang dikembalikan up.php ($mappings).

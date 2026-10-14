@@ -12,14 +12,14 @@ import { env } from '$env/dynamic/private';
 // SUMBER DOKUMEN (pasca-migrasi — diatur lewat env, bisa ganti tanpa rebuild):
 //   DOC_ROOT : path MOUNT lokal yang berisi folder WES/... (mis. hasil mount
 //              //10.1.95.116/Data ke /mnt/doa-docs). Dicoba PERTAMA bila diset.
-//   DOC_BASE : base HTTP fallback (default http://10.1.95.76/webdoa) — Form masih
+//   DOC_BASE : base HTTP fallback (default http://10.1.95.116/webdoa) — Form masih
 //              dilayani di sini; juga menangkap file yang baru diupload.
 //
 // watermark.php SUDAH TIDAK DIPAKAI (rusak pasca-migrasi, dan tidak perlu):
 // identitas di-watermark CLIENT-SIDE oleh doa-secure.js di viewer (pakai
 // userid/ip/time dari session). Procedure diambil mentah seperti Form.
 const DOC_ROOT = env.DOC_ROOT ?? '';
-const BASE = env.DOC_BASE ?? 'http://10.1.95.76/webdoa';
+const BASE = env.DOC_BASE ?? 'http://10.1.95.116/webdoa';
 
 const CT: Record<string, string> = {
 	pdf: 'application/pdf',
