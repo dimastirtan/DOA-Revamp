@@ -9,8 +9,12 @@ import { promisify } from 'node:util';
 import { writeFile, readFile, unlink, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { env } from '$env/dynamic/private';
 
 const execFileAsync = promisify(execFile);
+
+// Endpoint upload dokumen (up.php). Env RUNTIME → bisa dipindah tanpa rebuild.
+const UPLOAD_URL = env.UPLOAD_URL ?? 'http://10.1.95.76/webdoa/up.php';
 
 // ─── Path helpers ───────────────────────────────────────────────────────
 // Base path absolut yang dikembalikan up.php ($mappings).
@@ -104,7 +108,7 @@ const uploadWithRetry = async (file: File, entry: any, retries = 3) => {
 			const controller = new AbortController();
 			const timeout = setTimeout(() => controller.abort(), 30000);
 
-			const uploadRes = await fetch('http://10.1.95.76/webdoa/up.php', {
+			const uploadRes = await fetch(UPLOAD_URL, {
 				method: 'POST',
 				body: uploadFormData,
 				signal: controller.signal

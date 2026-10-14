@@ -434,6 +434,7 @@
 							if (user.userlevel == '7') return 'Manajemen Resiko';
 							if (user.userlevel == '8') return 'Human Capital';
 							if (user.userlevel == '9') return 'Direktorat Produksi';
+							if (user.userlevel == '10') return 'Quality Assurance';
 							return '-';
 						})(),
 						activated: user.userlevel == '0' ? 'Aktivasi' : user.activated === 'Y' ? 'Aktif' : user.activated === 'N' ? 'Nonaktif' : user.activated

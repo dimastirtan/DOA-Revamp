@@ -28,7 +28,7 @@ import { env } from '$env/dynamic/private';
 // Folder tujuan penyimpanan PDF surat pernyataan (UNC Windows / path Linux).
 const SURAT_PERNYATAAN_DIR =
 	env.SURAT_PERNYATAAN_DIR ??
-	"\\\\172.16.0.102\\customizing\\SE000\\SE1000\\SE1300\\19. Surat Pernyataan Portal DOA";
+	"/data/surat-pernyataan";
 
 // ── Email ──
 const MAIL_HOST = env.MAIL_HOST ?? '10.1.0.6';            // server SMTP
