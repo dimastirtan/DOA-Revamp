@@ -191,7 +191,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				username: yup.string().required(),
 				// 0 = pending aktivasi; 6-9 = role divisi. Harus ikut, kalau tidak
 				// admin tak bisa edit user divisi / pending (bug saat review).
-				userlevel: yup.number().required().oneOf([-1, 0, 1, 2, 3, 5, 6, 7, 8, 9]),
+				userlevel: yup.number().required().oneOf([-1, 0, 1, 2, 3, 5, 6, 7, 8, 9, 10]),
 				password: yup.string(),
 				// 'Aktivasi' = label status user pending → diperlakukan sama seperti 'N'.
 				activated: yup.string().required().oneOf(['Aktif', 'Nonaktif', 'Aktivasi'])

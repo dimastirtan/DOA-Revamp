@@ -5,9 +5,10 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
+		// Batas ukuran upload BUKAN opsi adapter (adapter-node mengabaikan
+		// `bodySize`). Diatur lewat env BODY_SIZE_LIMIT saat `node build` jalan.
 		adapter: adapter({
-			assets: ['up.php'],
-			bodySize: 5 * 1024 * 1024 // 5MB
+			assets: ['up.php']
 		}),
 		alias: {
 			'@/*': './path/to/lib/*'
