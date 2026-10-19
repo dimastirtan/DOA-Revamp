@@ -27,7 +27,7 @@ yang serius** (bukan pencegahan mutlak).
 
 ## 1. Kondisi sekarang
 
-`window.open('http://portalditek.../watermark.php?...')` membuka PDF di **viewer
+`window.open('http://10.1.95.116/.../watermark.php?...')` membuka PDF di **viewer
 bawaan browser** → ada tombol download, print, Ctrl+S, dan **URL asli kelihatan**
 (bisa diminta ulang / dibagikan). Identitas watermark diambil dari `kuid` di URL
 → bisa dipalsukan. Praktis: **fully downloadable**.
@@ -44,7 +44,7 @@ bawaan browser** → ada tombol download, print, Ctrl+S, dan **URL asli kelihata
 ### 2b. Proxy same-origin (sembunyikan sumber + identitas dari session)
 - Endpoint SvelteKit, mis. `GET /-doa/pdf?ndm=...`, yang **di server** mengambil
   byte PDF (ber-watermark) lalu meneruskannya. Efek:
-  - Karyawan **tidak pernah melihat URL asli** portalditek → tidak bisa
+  - Karyawan **tidak pernah melihat URL asli** server dokumen → tidak bisa
     dibagikan / diminta ulang mentah.
   - **Identitas dari session Lucia** (bukan `kuid` di URL) → watermark pasti
     atas nama yang benar; menutup celah pemalsuan `kuid` yang ada sekarang.

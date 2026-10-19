@@ -137,7 +137,8 @@
 		{ value: 'tm', label: 'Test Method - Non Aircraft' },
 		{ value: 'WA', label: 'Working Arrangement - Non Aircraft' },
 		{ value: 'wi', label: 'Work Instruction' },
-		{ value: 'wi2', label: 'Work Instruction - Non Aircraft' }
+		{ value: 'wi2', label: 'Work Instruction - Non Aircraft' },
+		{ value: 'QP2', label: 'Working Arrangement & Quality plan' }
 	];
 
 	const userlevels = [
@@ -149,7 +150,8 @@
 		{ value: 6, label: 'Manajemen Program' },
 		{ value: 7, label: 'Manajemen Resiko' },
 		{ value: 8, label: 'Human Capital' },
-		{ value: 9, label: 'Direktorat Produksi' }
+		{ value: 9, label: 'Direktorat Produksi' },
+		{ value: 10, label: 'Quality Assurance' }
 	];
 	// Meta = Manajemen njuk dadi opo?
 
@@ -262,7 +264,7 @@
 			a.remove();
 		} else if (PDF_MODE === 'legacy') {
 			window.open(
-				`http://10.1.95.116/webdoa/tcpdf/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
+				`http://10.1.95.116/data/edm/watermark.php?ndm=${doa.nmpath.split('/').pop()}&nmpath=${doa.nmpath}&jdl=${encodeURIComponent(doa.title)}&kuid=${data.user.kuid}`,
 				'_blank'
 			);
 		} else {

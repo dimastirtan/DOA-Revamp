@@ -16,7 +16,7 @@
 	let totalPages  = $state(0);
 
 	// Kode singkat divisi untuk header kolom (label penuh di tooltip).
-	const CODE: Record<number, string> = { 6: 'DT', 7: 'GR', 8: 'HC', 9: 'DP' };
+	const CODE: Record<number, string> = { 6: 'DT', 7: 'GR', 8: 'HC', 9: 'DP', 10: 'QA' };
 
 	let debounceTimer: ReturnType<typeof setTimeout>;
 

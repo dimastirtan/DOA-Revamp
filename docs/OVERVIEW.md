@@ -56,7 +56,7 @@ di LOG, tapi jawab quiz. (Detail penuh: `docs/quiz_design.md`.)
 **File terkait:**
 - DB: `quiz.sql` (root) — tabel `quiz_question`, `quiz_attempt`, kolom
   `useraccounts.points`. **Sudah dijalankan di produksi** (MyISAM/utf8, karena
-  MySQL 5.1.71).
+  tabel existing MyISAM; kini server 5.7.44 @ 10.1.95.116).
 - Endpoint: `src/routes/-doa/quiz/{start,submit,soal,log,available}/+server.ts`
 - Halaman: `src/routes/dash/quiz/{+page,soal,log}`
 - Modal + `bukaDoa()`: `src/routes/dash/+page.svelte`
@@ -129,7 +129,7 @@ Login butuh: level ≠ 0 **dan** `activated='Y'`.
 
 ## Catatan lingkungan (biar tidak bingung)
 - **DB lokal** = `doan` (MySQL di 127.0.0.1). **DB produksi** = `standard` @
-  10.1.95.76 (MySQL **5.1.71** — jadul: MyISAM, tak ada utf8mb4/InnoDB baru).
+  10.1.95.116:3307 (MySQL **5.7.44**, Docker — tabel existing tetap MyISAM/latin1).
 - `src/lib/server/db/index.ts` = tempat ganti koneksi. **Sekarang menunjuk lokal**
   (`doan`) untuk dev; balik ke blok produksi saat mau deploy.
 - Saat test, buat user test di **lokal** saja, jangan tulis data test ke produksi.

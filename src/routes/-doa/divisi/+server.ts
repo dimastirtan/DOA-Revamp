@@ -10,7 +10,8 @@ const DIVISI_LIST = [
 	{ value: 6, label: 'Program Management' },
 	{ value: 7, label: 'Manajemen Resiko' },
 	{ value: 8, label: 'Human Capital' },
-	{ value: 9, label: 'Direktorat Produksi' }
+	{ value: 9, label: 'Direktorat Produksi' },
+	{ value: 10, label: 'Quality Assurance' }
 ];
 
 const canManage = (lvl: unknown) => lvl === -1 || lvl === 5;

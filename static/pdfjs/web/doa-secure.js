@@ -89,14 +89,14 @@
 			if (!pageDiv || pageDiv.querySelector('.multi-watermark')) return;
 			const layer = document.createElement('div');
 			layer.className = 'multi-watermark';
-			const rows = 8,
-				cols = 4;
+			const rows = 20,
+				cols = 20;
 			for (let r = 0; r < rows; r++) {
 				for (let c = 0; c < cols; c++) {
 					const span = document.createElement('span');
 					span.innerText = text;
 					span.style.top = r * 120 + 'px';
-					span.style.left = c * 220 + 'px';
+					span.style.left = c * 400 + 'px';
 					layer.appendChild(span);
 				}
 			}

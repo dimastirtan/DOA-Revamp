@@ -84,7 +84,7 @@ procedure_division
   yang lihat, seperti biasa). *Tak ada* konsep "common" otomatis — semua eksplisit
   (lebih transparan & mudah diaudit; kalau perlu "semua divisi" tinggal centang
   semua di dashboard).
-- MyISAM/utf8 (produksi MySQL 5.1.71), tanpa FK fisik — konsisten aturan repo.
+- MyISAM/utf8 (menyesuaikan tabel existing; produksi MySQL 5.7.44 @ 10.1.95.116), tanpa FK fisik — konsisten aturan repo.
 - Nama divisi untuk UI diambil dari daftar `userlevels` di kode (ditambah 6–9).
   *(Opsi kalau mau nama data-driven: tabel `division(userlevel,name)`. Belum perlu.)*
 

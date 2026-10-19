@@ -28,7 +28,7 @@ tampil "-" (lihat catatan di bawah).
 
 ## Cara merealisasikan ke PRODUKSI
 
-DB produksi = `standard` @ 10.1.95.76 (MySQL 5.1.71). Langkah:
+DB produksi = `standard` @ 10.1.95.116:3307 (MySQL 5.7.44, Docker). Langkah:
 
 1. **Deploy build aplikasi** yang memuat `schema.ts` dengan kolom `org`
    (dan UI Daftar User yang baru).

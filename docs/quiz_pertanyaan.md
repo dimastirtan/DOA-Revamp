@@ -165,7 +165,7 @@ Saat ini yang diminta hanya **procedure** (`pro` dan `pro2`).
 
 ## 11. (Teknis — untuk internal, bukan supervisor) Cara deploy tabel baru
 
-DB produksi (`standard` @ 10.1.95.76) juga dipakai sistem PHP lama.
+DB produksi (`standard` @ 10.1.95.116:3307) juga dipakai sistem PHP lama.
 
 - [ ] **A. File SQL manual** ⭐ — developer siapkan `CREATE TABLE` + seed soal;
   dieksekusi manual di produksi (paling aman untuk DB yang dipakai bersama).

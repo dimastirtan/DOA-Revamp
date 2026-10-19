@@ -2,7 +2,7 @@
 
 Status: **SUDAH DIIMPLEMENTASI (7 Sep 2026).** Backend + 3 halaman + modal
 tawaran quiz di dashboard, teruji end-to-end. Skema DB **sudah diterapkan di
-produksi** `standard` @ 10.1.95.76 (lihat §10). Penyesuaian scoring: **percobaan
+produksi** `standard` @ 10.1.95.116:3307 (lihat §10). Penyesuaian scoring: **percobaan
 bebas, yang dicatat nilai tertinggi** (§7).
 
 **PERUBAHAN PENDEKATAN (7 Sep 2026): watermark.php TIDAK jadi diubah.** Pintu
@@ -288,7 +288,7 @@ Supervisor: "kerjakan seoptimalnya, nanti bisa di-improve." Yang diputuskan:
 
 | Bagian | File |
 | :--- | :--- |
-| SQL skema | `quiz.sql` (root) — 2 tabel **MyISAM/utf8** + `ALTER useraccounts ADD points` (server produksi MySQL 5.1.71 — lihat §5) |
+| SQL skema | `quiz.sql` (root) — 2 tabel **MyISAM/utf8** + `ALTER useraccounts ADD points` (server produksi MySQL 5.7.44 @ 10.1.95.116 — lihat §5) |
 | Drizzle schema | `src/lib/server/db/schema.ts` — `quizQuestion`, `quizAttempt`, `useraccounts.points` |
 | Endpoint start | `src/routes/-doa/quiz/start/+server.ts` |
 | Endpoint submit | `src/routes/-doa/quiz/submit/+server.ts` |
@@ -316,7 +316,7 @@ Hasil uji end-to-end (data test dibersihkan):
 
 ### Status deploy produksi
 
-1. **Skema DB — SUDAH diterapkan** di `standard` @ 10.1.95.76 (7 Sep 2026):
+1. **Skema DB — SUDAH diterapkan** di `standard` @ 10.1.95.116:3307 (7 Sep 2026):
    `quiz_question`, `quiz_attempt` (MyISAM/utf8), `useraccounts.points` (258 user
    utuh, sudah di-backup user sebelumnya).
 2. **Deploy build aplikasi** — dilakukan user saat siap (koneksi `index.ts` sudah
@@ -451,7 +451,7 @@ apakah quiz "hilang sementara" sampai admin siapkan (perilaku Q2) itu OK?
 
 ## Lampiran: file terkait
 
-- `watermark.php` (root repo) — salinan dari server portalditek, **kembali ke
+- `watermark.php` (root repo) — salinan dari server dokumen lama (kini 10.1.95.116), **kembali ke
   asli / tidak diubah** (pintu masuk quiz pindah ke modal dashboard, §4).
 - `quiz.sql` (root repo) — skema DB (MyISAM/utf8); **sudah diterapkan di produksi**.
 - `department.sql` (root repo) — kolom `useraccounts.org` + backfill dari

@@ -9,7 +9,8 @@ const DIVISI_LABEL: Record<number, string> = {
 	6: 'Program Management',
 	7: 'Manajemen Resiko',
 	8: 'Human Capital',
-	9: 'Direktorat Produksi'
+	9: 'Direktorat Produksi',
+	10: 'Quality Assurance'
 };
 const isDivisi = (lvl: unknown): lvl is number => typeof lvl === 'number' && lvl >= 6;
 

@@ -18,8 +18,23 @@ import { env } from '$env/dynamic/private';
 // watermark.php SUDAH TIDAK DIPAKAI (rusak pasca-migrasi, dan tidak perlu):
 // identitas di-watermark CLIENT-SIDE oleh doa-secure.js di viewer (pakai
 // userid/ip/time dari session). Procedure diambil mentah seperti Form.
-const DOC_ROOT = env.DOC_ROOT ?? '';
-const BASE = env.DOC_BASE ?? 'http://10.1.95.116/webdoa';
+// DOC_ROOT boleh berisi BEBERAPA root dipisah KOMA — mis. share "Data" (base
+// catia: procedure) + share "webdoa" (FORM). Dicoba berurutan sampai ketemu.
+const DOC_ROOTS = (env.DOC_ROOT ?? '/home/ptdi/webdoa/data/')
+	.split(',')
+	.map((s) => s.trim())
+	.filter(Boolean);
+const BASE = env.DOC_BASE ?? 'http://10.1.95.116/data/';
+
+// Di bawah DOC_ROOT (mis. mount share "Data"), file tersimpan di salah satu base
+// lama — nmpath (WES/...) relatif ke sini:
+//   edm/aplikasi/catia/ → procedure & dokumen catia
+//   aplikasi/webdoa/    → form
+// '' = kalau DOC_ROOT sudah langsung menunjuk salah satu base.
+// Override via env DOC_PREFIXES (dipisah koma) bila struktur beda.
+const DOC_PREFIXES = (env.DOC_PREFIXES ?? 'data/edm/aplikasi/catia,data/aplikasi/webdoa,edm/aplikasi/catia,aplikasi/webdoa,')
+	.split(',')
+	.map((s) => s.trim().replace(/^\/+|\/+$/g, ''));
 
 const CT: Record<string, string> = {
 	pdf: 'application/pdf',
@@ -35,18 +50,38 @@ async function fetchDoc(rel: string): Promise<Buffer | null> {
 	const clean = rel.replace(/^\/+/, '').trim();
 	if (!clean || clean.includes('..')) return null; // guard traversal
 
-	const variants = [clean];
-	if (/(^|\/)FORM\//i.test(clean)) variants.push(clean.replace(/(^|\/)FORM\//i, '$1FORM_/'));
+	// Folder FORM pasca-migrasi = "FORM_", dan isinya dikonsolidasi ke subfolder
+	// Office/ & PDF/ saja (subfolder lama Word/, "Form NA"/ dll tak ada lagi).
+	// Jadi untuk path FORM, selain FORM->FORM_ juga coba BASENAME langsung di
+	// FORM_/Office & FORM_/PDF (nama file tetap sama walau subfolder berubah).
+	const list = [clean];
+	if (/(^|\/)FORM_?\//i.test(clean)) {
+		const base = clean.split('/').pop();
+		const pre = clean.replace(/(^|\/)FORM_?\/.*/i, '$1'); // prefix sebelum FORM, mis. "WES/"
+		list.push(
+			clean.replace(/(^|\/)FORM\//i, '$1FORM/'),
+			`${pre}FORM/Office/${base}`,
+			`${pre}FORM/PDF/${base}`
+		);
+	}
+	const variants = [...new Set(list)];
 
-	if (DOC_ROOT) {
+	for (const DOC_ROOT of DOC_ROOTS) {
 		const root = nodePath.resolve(DOC_ROOT);
-		for (const v of variants) {
-			try {
-				const full = nodePath.resolve(root, v);
-				if (full !== root && !full.startsWith(root + nodePath.sep)) continue; // tetap di dalam root
-				return await fs.readFile(full);
-			} catch {
-				/* coba varian / sumber berikutnya */
+		// resolve() bisa mengembalikan root DENGAN trailing separator (mis. UNC
+		// "\\\\host\\share\\" di Windows) → jangan tambah sep lagi, nanti guard
+		// jadi double-sep dan selalu gagal.
+		const rootSep = root.endsWith(nodePath.sep) ? root : root + nodePath.sep;
+		for (const prefix of DOC_PREFIXES) {
+			for (const v of variants) {
+				try {
+					const rel = prefix ? `${prefix}/${v}` : v;
+					const full = nodePath.resolve(root, rel);
+					if (!full.startsWith(rootSep)) continue; // tetap di dalam root
+					return await fs.readFile(full);
+				} catch {
+					/* coba kombinasi base/varian berikutnya */
+				}
 			}
 		}
 	}
@@ -90,9 +125,23 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	// → nmpath dulu. Semua diambil MENTAH (tanpa watermark.php).
 	const candidates = (isForm ? [pdf, nmpath] : [nmpath, pdf])
 		.map((p) => (p || '').replace(/^\/+/, '').trim())
-		.filter((p, i, a) => p.length > 0 && a.indexOf(p) === i);
+		.filter((p) => p.length > 0);
 
-	for (const ref of candidates) {
+	// FORM: sebagian baris menyimpan nmpath/pdf cuma NAMA FILE (tanpa WES/FORM/<sub>/),
+	// atau subfolder-nya beda dari share. Fallback: cari BASENAME-nya di semua
+	// subfolder FORM yang dikenal (webdoa: Office/PDF/Word/"Form NA"; Data: FORM_/*
+	// ditangani varian di fetchDoc).
+	if (isForm) {
+		const bases = [
+			...new Set(
+				[pdf, nmpath].map((p) => (p || '').split('/').pop()?.trim() || '').filter((b) => b && b !== '-')
+			)
+		];
+		for (const b of bases)
+			for (const sub of ['Office', 'PDF', 'Word', 'Form NA']) candidates.push(`WES/FORM/${sub}/${b}`);
+	}
+
+	for (const ref of [...new Set(candidates)]) {
 		const buf = await fetchDoc(ref);
 		if (!buf) continue;
 		const ext = extOf(ref);
