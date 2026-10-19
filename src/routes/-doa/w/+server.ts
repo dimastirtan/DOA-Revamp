@@ -19,7 +19,7 @@ const UPLOAD_URL = env.UPLOAD_URL ?? 'http://10.1.95.116/webdoa/up.php';
 // ─── Path helpers ───────────────────────────────────────────────────────
 // Base path absolut yang dikembalikan up.php ($mappings).
 // Dokumen catia -> /data/edm/aplikasi/catia/..., form -> /data/aplikasi/webdoa/...
-const KNOWN_BASES = ['/data/edm/aplikasi/catia/', '/data/aplikasi/webdoa/'];
+const KNOWN_BASES = ['/data/edm/aplikasi/catia/', '/webdoa/'];
 const toRelative = (p: string) => {
 	for (const b of KNOWN_BASES) if (p.startsWith(b)) return p.slice(b.length);
 	return p.replace(/^\/+/, '');
