@@ -121,6 +121,25 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		if (allowed.length === 0) return new Response('Akses ditolak untuk divisi Anda.', { status: 403 });
 	}
 
+	// Working Arrangement (type 'wa'/'WA'/'WA '): hanya Admin (-1) & Controller (5)
+	// yang boleh unduh/buka. Role lain cuma melihat list (tombol disembunyikan di
+	// UI — lihat dash/+page.svelte — dan ditolak di sini agar tak bisa via URL).
+	const lvlNum = Number(lvl);
+	if (lvlNum !== -1 && lvlNum !== 5) {
+		const ref = nmpath || pdf;
+		const wa = await db
+			.select({ no: standard.no })
+			.from(standard)
+			.where(
+				sql`(${standard.nmpath} = ${ref} OR ${standard.pdf} = ${ref}) AND TRIM(${standard.type}) = 'wa'`
+			)
+			.limit(1);
+		if (wa.length > 0)
+			return new Response('Akses ditolak: Working Arrangement hanya untuk Admin/Controller.', {
+				status: 403
+			});
+	}
+
 	// FORM → utamakan kolom pdf (Word editable) lalu nmpath. Non-form (procedure)
 	// → nmpath dulu. Semua diambil MENTAH (tanpa watermark.php).
 	const candidates = (isForm ? [pdf, nmpath] : [nmpath, pdf])

@@ -81,6 +81,12 @@
 	let roleEditDoa = $derived(data.user?.userlevel == -1 || data.user?.userlevel == 5);
 	let roleUser = $derived(data.user?.userlevel == -1);
 
+	// Working Arrangement (type 'wa'/'WA'/'WA ') → tombol Unduh/Buka hanya untuk
+	// Admin (-1) & Controller (5) = roleEditDoa. Role lain cuma lihat listnya.
+	// Ditegakkan juga di server (src/routes/-doa/pdf) agar tak bisa via URL.
+	const isWorkingArrangement = (t: string | null | undefined) =>
+		(t ?? '').trim().toLowerCase() === 'wa';
+
 	selectedDoa = {
 		no: '',
 		type: '',
@@ -135,7 +141,7 @@
 		{ value: 'SAE', label: 'SAE' },
 		{ value: 'standard', label: 'Standard' },
 		{ value: 'tm', label: 'Test Method - Non Aircraft' },
-		{ value: 'WA', label: 'Working Arrangement - Non Aircraft' },
+		{ value: 'WA', label: 'Working Arrangement' },
 		{ value: 'wi', label: 'Work Instruction' },
 		{ value: 'wi2', label: 'Work Instruction - Non Aircraft' },
 		{ value: 'QP2', label: 'Working Arrangement & Quality plan' }
@@ -1319,7 +1325,7 @@
 										>
 											<img src="edit.svg" class="w-3.5" alt="" />
 										</div>
-										{#if doa.nmpath}
+										{#if doa.nmpath && (roleEditDoa || !isWorkingArrangement(doa.type))}
 											<div
 												role="button"
 												tabindex="0"
@@ -1332,7 +1338,7 @@
 												}}
 												class="bg-primary flex p-1.5 aspect-square border-1 border-secondary cursor-pointer"
 											>
-												<img src="download.svg" class="w-3.5" alt="" />
+												<img src="download.svg" class="w-3.5 ${doa.type === 'WI' ? 'hidden' : ''}" alt="" />
 											</div>
 										{/if}
 									</div>
