@@ -2,7 +2,7 @@ import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { quizQuestion, standard } from '$lib/server/db/schema';
-import { and, eq, inArray, like, ne, or, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, like, ne, or, sql } from 'drizzle-orm';
 
 const MAX_QUESTIONS = 5;
 const CORRECT_KEYS = ['A', 'B', 'C', 'D'] as const;
@@ -42,11 +42,53 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				return json({ success: false, error: 'Procedure tidak ditemukan.' }, { status: 404 });
 			}
 
+			// Soal untuk REVISI yang berlaku sekarang (§12b).
 			const soal = await db
 				.select()
 				.from(quizQuestion)
-				.where(and(eq(quizQuestion.standardNo, standardNo), eq(quizQuestion.remark, 'Active')))
+				.where(
+					and(
+						eq(quizQuestion.standardNo, standardNo),
+						eq(quizQuestion.revision, doc.revision ?? ''),
+						eq(quizQuestion.remark, 'Active')
+					)
+				)
 				.orderBy(quizQuestion.no);
+
+			// Mitigasi "quiz hilang sementara": kalau revisi berlaku belum punya soal,
+			// tawarkan SALIN dari revisi terakhir yang terisi (titik awal; admin tetap
+			// mengedit & menyimpan — tersimpan sebagai soal revisi baru).
+			let prev: { revision: string | null; soal: any[] } | null = null;
+			if (soal.length === 0) {
+				const other = await db
+					.select()
+					.from(quizQuestion)
+					.where(
+						and(
+							eq(quizQuestion.standardNo, standardNo),
+							ne(quizQuestion.revision, doc.revision ?? ''),
+							eq(quizQuestion.remark, 'Active')
+						)
+					)
+					.orderBy(desc(quizQuestion.updatedAt), desc(quizQuestion.no));
+				if (other.length) {
+					const rev = other[0].revision;
+					prev = {
+						revision: rev,
+						soal: other
+							.filter((q) => q.revision === rev)
+							.slice(0, MAX_QUESTIONS)
+							.map((q) => ({
+								question: q.question,
+								a: q.optionA,
+								b: q.optionB,
+								c: q.optionC,
+								d: q.optionD,
+								correct: q.correct
+							}))
+					};
+				}
+			}
 
 			return json({
 				success: true,
@@ -61,7 +103,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 					correct: q.correct,
 					updatedBy: q.updatedBy,
 					updatedAt: q.updatedAt
-				}))
+				})),
+				prev
 			});
 		}
 
@@ -100,17 +143,18 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		const nos = rows.map((r) => r.no);
 		const counts = nos.length
 			? await db
-					.select({ standardNo: quizQuestion.standardNo, n: sql<number>`COUNT(*)` })
+					.select({ standardNo: quizQuestion.standardNo, revision: quizQuestion.revision, n: sql<number>`COUNT(*)` })
 					.from(quizQuestion)
 					.where(and(inArray(quizQuestion.standardNo, nos), eq(quizQuestion.remark, 'Active')))
-					.groupBy(quizQuestion.standardNo)
+					.groupBy(quizQuestion.standardNo, quizQuestion.revision)
 			: [];
-		const countMap = new Map(counts.map((c) => [c.standardNo, Number(c.n)]));
+		// Key per (standard_no + revisi) → ambil hanya count utk revisi berlaku.
+		const countMap = new Map(counts.map((c) => [`${c.standardNo}|${c.revision ?? ''}`, Number(c.n)]));
 
 		const total = Number(count?.total ?? 0);
 		return json({
 			success: true,
-			data: rows.map((r) => ({ ...r, soalCount: countMap.get(r.no) ?? 0 })),
+			data: rows.map((r) => ({ ...r, soalCount: countMap.get(`${r.no}|${r.revision ?? ''}`) ?? 0 })),
 			pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
 		});
 	} catch (err: any) {
@@ -174,7 +218,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const existing = await db
 			.select({ no: quizQuestion.no })
 			.from(quizQuestion)
-			.where(and(eq(quizQuestion.standardNo, standardNo), eq(quizQuestion.remark, 'Active')));
+			.where(and(eq(quizQuestion.standardNo, standardNo), eq(quizQuestion.revision, doc.revision ?? ''), eq(quizQuestion.remark, 'Active')));
 		const existingNos = new Set(existing.map((e) => e.no));
 
 		const now = new Date();
@@ -197,7 +241,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				keptNos.add(s.no);
 				await db.update(quizQuestion).set(values).where(eq(quizQuestion.no, s.no));
 			} else {
-				await db.insert(quizQuestion).values({ ...values, standardNo });
+				await db.insert(quizQuestion).values({ ...values, standardNo, revision: doc.revision ?? '' });
 			}
 		}
 

@@ -40,10 +40,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			);
 		}
 
+		// Nilai terhadap soal revisi yang dikerjakan (snapshot di attempt.revision),
+		// supaya tetap benar walau procedure sudah naik revisi di tengah pengerjaan.
 		const soal = await db
 			.select()
 			.from(quizQuestion)
-			.where(and(eq(quizQuestion.standardNo, attempt.standardNo), eq(quizQuestion.remark, 'Active')));
+			.where(
+				and(
+					eq(quizQuestion.standardNo, attempt.standardNo),
+					eq(quizQuestion.revision, attempt.revision ?? ''),
+					eq(quizQuestion.remark, 'Active')
+				)
+			);
 
 		// Satu jawaban per soal; kunci dibandingkan di sini, tidak pernah ke client
 		const chosen = new Map<number, string>();
@@ -56,7 +64,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const score = detail.filter((d) => d.benar).length;
 		const status = score >= PASSING_SCORE ? 'lulus' : 'gagal';
 
-		// Skor terbaik SEBELUM attempt ini
+		// Skor terbaik SEBELUM attempt ini, per (procedure + revisi) — poin dihitung
+		// ulang per revisi (lihat start/+server.ts).
 		const [prev] = await db
 			.select({ best: sql<number>`COALESCE(MAX(${quizAttempt.score}), 0)` })
 			.from(quizAttempt)
@@ -64,6 +73,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				and(
 					eq(quizAttempt.username, attempt.username),
 					eq(quizAttempt.standardNo, attempt.standardNo),
+					eq(quizAttempt.revision, attempt.revision ?? ''),
 					ne(quizAttempt.status, 'pending')
 				)
 			);

@@ -32,20 +32,28 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			return json({ success: true, available: false });
 		}
 
+		// Per-revisi (§12b): quiz aktif hanya bila ada 5 soal untuk revisi yang
+		// BERLAKU SEKARANG. Revisi naik tanpa soal baru → quiz tak ditawarkan.
 		const [cnt] = await db
 			.select({ n: sql<number>`COUNT(*)` })
 			.from(quizQuestion)
-			.where(and(eq(quizQuestion.standardNo, doc.no), eq(quizQuestion.remark, 'Active')));
+			.where(
+				and(
+					eq(quizQuestion.standardNo, doc.no),
+					eq(quizQuestion.revision, doc.revision ?? ''),
+					eq(quizQuestion.remark, 'Active')
+				)
+			);
 
 		const available = Number(cnt?.n ?? 0) === QUESTIONS_PER_QUIZ;
 
-		// Sudah lulus? (per procedure/standard_no). Kalau ya, modal tak perlu muncul lagi.
-		// Catatan: saat ini lock per procedure; penanganan per-revisi menyusul
-		// (lihat rancangan revisi di docs/quiz_design.md).
+		// Sudah lulus? Per (procedure + revisi berlaku): begitu revisi naik, lulus
+		// revisi lama tidak lagi menutup → quiz ditawarkan lagi utk revisi baru.
 		const passed = await db.query.quizAttempt.findFirst({
 			where: and(
 				eq(quizAttempt.username, locals.user.id),
 				eq(quizAttempt.standardNo, doc.no),
+				eq(quizAttempt.revision, doc.revision ?? ''),
 				eq(quizAttempt.status, 'lulus')
 			)
 		});

@@ -45,14 +45,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			);
 		}
 
-		// Sudah lulus procedure ini? → kunci: tidak boleh mengerjakan lagi.
-		// (Authoritative di server supaya tidak bisa di-bypass lewat URL langsung.)
-		// Saat ini lock per procedure (standard_no); penanganan per-revisi menyusul
-		// (lihat rancangan revisi di docs/quiz_design.md).
+		// Sudah lulus procedure ini (utk revisi berlaku)? → kunci: tidak boleh
+		// mengerjakan lagi. Authoritative di server (tak bisa di-bypass via URL).
+		// Lock per (standard_no + revisi): revisi naik → lulus lama tak mengunci lagi.
 		const passed = await db.query.quizAttempt.findFirst({
 			where: and(
 				eq(quizAttempt.username, locals.user.id),
 				eq(quizAttempt.standardNo, doc.no),
+				eq(quizAttempt.revision, doc.revision ?? ''),
 				eq(quizAttempt.status, 'lulus')
 			),
 			orderBy: desc(quizAttempt.score)
@@ -76,12 +76,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			);
 		}
 
-		// Soal diikat ke standard.no (PK permanen), bukan nomor dokumen —
-		// jadi tetap ketemu walau nomor procedure sudah pernah diubah.
+		// Soal diikat ke (standard.no + revisi berlaku). standard.no permanen (tahan
+		// rename nomor); revisi memastikan karyawan mengerjakan soal versi dokumen
+		// yang sedang berlaku.
 		const soal = await db
 			.select()
 			.from(quizQuestion)
-			.where(and(eq(quizQuestion.standardNo, doc.no), eq(quizQuestion.remark, 'Active')));
+			.where(
+				and(
+					eq(quizQuestion.standardNo, doc.no),
+					eq(quizQuestion.revision, doc.revision ?? ''),
+					eq(quizQuestion.remark, 'Active')
+				)
+			);
 
 		if (soal.length !== QUESTIONS_PER_QUIZ) {
 			return json(
@@ -102,6 +109,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			where: and(
 				eq(quizAttempt.username, locals.user.id),
 				eq(quizAttempt.standardNo, doc.no),
+				eq(quizAttempt.revision, doc.revision ?? ''),
 				eq(quizAttempt.status, 'pending')
 			),
 			orderBy: desc(quizAttempt.no)
@@ -114,7 +122,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				standardNo: doc.no,
 				nmdoc: doc.number ?? ndm,    // SNAPSHOT BEKU nomor saat mengerjakan
 				title: doc.title,     // SNAPSHOT BEKU — log tetap benar walau dokumen diedit
-				revision: doc.revision,
+				revision: doc.revision ?? '',
 				startedAt: new Date()
 			});
 			attempt = await db.query.quizAttempt.findFirst({
@@ -128,7 +136,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// Skor terbaik sebelumnya (aturan poin: hanya nilai tertinggi yang dihitung),
-		// dikelompokkan per procedure by standard.no supaya tetap nyambung antar rename.
+		// per (procedure + revisi) → tiap revisi jadi konteks skor baru (poin bisa
+		// diperoleh lagi saat membaca versi dokumen yang diperbarui).
 		const [best] = await db
 			.select({ best: sql<number>`COALESCE(MAX(${quizAttempt.score}), 0)` })
 			.from(quizAttempt)
@@ -136,6 +145,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				and(
 					eq(quizAttempt.username, locals.user.id),
 					eq(quizAttempt.standardNo, doc.no),
+					eq(quizAttempt.revision, doc.revision ?? ''),
 					ne(quizAttempt.status, 'pending')
 				)
 			);

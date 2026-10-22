@@ -16,6 +16,7 @@
 CREATE TABLE IF NOT EXISTS quiz_question (
   no          INT AUTO_INCREMENT PRIMARY KEY,
   standard_no INT NOT NULL,                 -- ref -> standard.no (PK, tak berubah)
+  revision    VARCHAR(10),                  -- soal milik revisi ini (quiz_design §12b)
   nmdoc       VARCHAR(100),                 -- snapshot nomor saat dibuat (informatif)
   question    TEXT NOT NULL,
   option_a    VARCHAR(500) NOT NULL,
@@ -26,7 +27,8 @@ CREATE TABLE IF NOT EXISTS quiz_question (
   remark      VARCHAR(50) NOT NULL DEFAULT 'Active',
   updated_by  VARCHAR(50),
   updated_at  DATETIME,
-  INDEX idx_qq_standard (standard_no)
+  INDEX idx_qq_standard (standard_no),
+  INDEX idx_qq_std_rev (standard_no, revision)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 -- Catatan engine/charset: server produksi = MySQL 5.1.71 (tidak ada utf8mb4;
 -- semua tabel existing MyISAM/latin1). Dipilih MyISAM+utf8 agar konsisten dgn
@@ -82,4 +84,16 @@ ALTER TABLE useraccounts ADD COLUMN points INT NOT NULL DEFAULT 0;
 --   -- (opsional) buang index nmdoc lama:
 --   -- ALTER TABLE quiz_question DROP INDEX idx_qq_nmdoc;
 --   -- ALTER TABLE quiz_attempt  DROP INDEX idx_qa_doc;
+-- ============================================================
+
+-- ============================================================
+-- MIGRASI per-revisi (Q2) — docs/quiz_design.md §12b.
+-- Untuk instalasi yang SUDAH punya quiz_question TANPA kolom `revision`.
+-- Lewati untuk instalasi baru (kolom sudah ada di CREATE TABLE di atas).
+--
+--   ALTER TABLE quiz_question ADD COLUMN revision VARCHAR(10) AFTER standard_no;
+--   -- backfill: soal lama dianggap milik revisi procedure yang berlaku sekarang
+--   UPDATE quiz_question q JOIN standard s ON s.no = q.standard_no
+--     SET q.revision = COALESCE(s.revision, '') WHERE q.revision IS NULL;
+--   ALTER TABLE quiz_question ADD INDEX idx_qq_std_rev (standard_no, revision);
 -- ============================================================

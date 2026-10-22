@@ -32,6 +32,9 @@
 	let slots = $state<Slot[]>([]);
 	let saving = $state(false);
 	let banner = $state<{ type: 'ok' | 'err'; text: string } | null>(null);
+	// Soal revisi sebelumnya (untuk SALIN) — hanya diisi server bila revisi
+	// berlaku belum punya soal. Lihat docs/quiz_design.md §12b.
+	let prevCopy = $state<{ revision: string | null; soal: any[] } | null>(null);
 
 	const fetchList = async () => {
 		loadingList = true;
@@ -57,6 +60,7 @@
 	const openEditor = async (no: number) => {
 		loadingEditor = true;
 		banner = null;
+		prevCopy = null;
 		try {
 			const res = await fetch(`/-doa/quiz/soal?no=${encodeURIComponent(no)}`);
 			if (res.status === 401) return goto('/login');
@@ -76,11 +80,33 @@
 				correct: s.correct
 			}));
 			while (slots.length < 5) slots.push(emptySlot());
+			prevCopy = json.prev ?? null;
 		} catch (e: any) {
 			banner = { type: 'err', text: e.message || 'Gagal terhubung ke server.' };
 		} finally {
 			loadingEditor = false;
 		}
+	};
+
+	// Salin soal revisi sebelumnya sebagai TITIK AWAL (no: null → tersimpan sebagai
+	// soal revisi berlaku saat Simpan). Admin tetap bisa mengedit dulu.
+	const salinDariPrev = () => {
+		if (!prevCopy) return;
+		slots = prevCopy.soal.map((s: any) => ({
+			no: null,
+			question: s.question ?? '',
+			a: s.a ?? '',
+			b: s.b ?? '',
+			c: s.c ?? '',
+			d: s.d ?? '',
+			correct: s.correct ?? ''
+		}));
+		while (slots.length < 5) slots.push(emptySlot());
+		banner = {
+			type: 'ok',
+			text: `Disalin dari revisi ${prevCopy.revision ?? '-'} — edit bila perlu, lalu Simpan untuk revisi ${doc?.revision ?? ''}.`
+		};
+		prevCopy = null;
 	};
 
 	const isFilled = (s: Slot) =>
@@ -220,7 +246,7 @@
 							}}
 						>Cari</button>
 					</div>
-					<p class="text-xs text-black/60">{total} procedure — quiz aktif jika soalnya tepat 5.</p>
+					<p class="text-xs text-black/60">{total} procedure — badge = soal untuk <b>revisi berlaku</b> (quiz aktif jika 5/5).</p>
 				</div>
 
 				<div class="flex-1 lg:min-h-0 lg:overflow-y-auto flex flex-col gap-2 max-h-72 overflow-y-auto lg:max-h-none">
@@ -298,7 +324,9 @@
 						<p class="font-medium text-black/60">Pilih procedure di sebelah kiri untuk mengelola soalnya.</p>
 						<p class="text-sm text-black/45 text-center max-w-sm">
 							Setiap procedure memiliki 5 soal sebagai atributnya. Quiz baru bisa
-							dikerjakan karyawan setelah kelima soalnya terisi.
+							dikerjakan karyawan setelah kelima soalnya terisi. Soal dikelola
+							<b>per revisi</b> — saat procedure naik revisi, siapkan soal untuk
+							revisi baru (bisa disalin dari revisi sebelumnya).
 						</p>
 					</div>
 				{:else}
@@ -311,6 +339,20 @@
 							{filledCount}/5 soal terisi
 						</span>
 					</div>
+
+					{#if prevCopy && filledCount === 0}
+						<div class="bg-[#b07d2a]/15 border border-[#b07d2a]/50 p-4 flex items-center justify-between gap-3 flex-wrap shrink-0">
+							<p class="text-sm font-medium">
+								Revisi <b>{doc.revision}</b> belum punya soal. Salin {prevCopy.soal.length} soal dari revisi
+								<b>{prevCopy.revision ?? '-'}</b> sebagai titik awal, lalu edit bila perlu.
+							</p>
+							<button
+								type="button"
+								class="shrink-0 px-4 py-2 bg-[#b07d2a] text-white! font-medium hover:bg-[#b07d2a]/90 transition-colors"
+								onclick={salinDariPrev}
+							>Salin dari Rev {prevCopy.revision ?? '-'}</button>
+						</div>
+					{/if}
 
 					{#each slots as slot, i}
 						<div class="bg-white/75 p-5 flex flex-col gap-3">

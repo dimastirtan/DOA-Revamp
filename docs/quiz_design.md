@@ -395,10 +395,30 @@ Titik penegakan:
 - Halaman `/dash/quiz` → fase `passed`: panel "Anda Sudah Lulus" (skor + tanggal),
   tanpa soal. Tombol **"Coba Lagi"** disembunyikan begitu `status==='lulus'`.
 
-Cakupan saat ini: **per procedure (`standard_no`)** — sekali lulus, terkunci
-selamanya walau revisi berubah. §12b mengubah ini jadi per-revisi.
+Cakupan: sejak §12b **per (procedure + revisi)** — begitu revisi naik, lulus revisi
+lama tidak lagi mengunci; quiz ditawarkan lagi untuk revisi baru.
 
-### 12b. Penanganan revisi procedure + soal — RANCANGAN (belum dikerjakan)
+### 12b. Penanganan revisi procedure + soal — DIIMPLEMENTASI (22 Okt 2026)
+
+**Diputuskan: Langkah 1 + Q2 + "quiz hilang sementara"=YA (mitigasi: salin soal +
+indikator backlog).** Keputusan yang diambil: (1) poin **diperoleh lagi tiap revisi**;
+(2) soal pakai **Q2** (kolom `revision`); (3) saat revisi naik & soal belum disiapkan,
+quiz **memang tidak ditawarkan** sampai admin menerbitkan soal revisi baru.
+
+Yang dikerjakan:
+- Kolom `revision` di `quiz_question` (schema.ts + `quiz.sql` CREATE & blok MIGRASI).
+- `available`/`start`/`submit`: cek lulus, ambil soal, pending-reuse, `bestScore`,
+  `prevBest` semua difilter `revision = revisi berlaku`. Soal dinilai terhadap
+  `attempt.revision` (snapshot) agar benar walau revisi naik di tengah pengerjaan.
+- Kelola Soal sadar-revisi: GET detail/list ambil soal untuk revisi berlaku (badge
+  `x/5` = kesiapan revisi berlaku = **indikator backlog**); POST menyimpan soal dengan
+  `revision` dokumen saat ini. Tombol **"Salin dari Rev X"** (titik awal) muncul kalau
+  revisi berlaku belum punya soal — soal disalin dengan `no:null` → tersimpan sebagai
+  soal revisi baru saat Simpan.
+
+Rancangan asli (tetap sebagai acuan):
+
+
 
 **Fakta model data (penting):** revisi procedure = **update baris `standard` yang
 sama di tempat** (endpoint `-doa/w` meng-`update ... where standard.no`, field
@@ -443,9 +463,10 @@ Kombinasi ini membuat re-quiz otomatis-tapi-terkendali: revisi naik → admin si
 soal revisi baru → karyawan otomatis diminta mengerjakan lagi; yang belum siap
 soalnya tidak nge-nag.
 
-**Keputusan yang dibutuhkan sebelum implementasi:** (1) poin diperoleh lagi tiap
-revisi? (2) Q1 atau Q2 untuk soal? (3) saat revisi naik & soal belum disiapkan,
-apakah quiz "hilang sementara" sampai admin siapkan (perilaku Q2) itu OK?
+**Keputusan (diambil 22 Okt 2026):** (1) poin diperoleh lagi tiap revisi = **ya**;
+(2) soal = **Q2**; (3) quiz "hilang sementara" sampai admin siapkan = **ya**
+(dengan mitigasi salin soal + indikator backlog). Lihat ringkasan implementasi
+di awal §12b.
 
 ---
 

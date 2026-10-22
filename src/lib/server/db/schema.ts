@@ -230,6 +230,9 @@ export const session = mysqlTable("session", {
 export const quizQuestion = mysqlTable("quiz_question", {
 	no: int("no").autoincrement().notNull(),
 	standardNo: int("standard_no").notNull(),
+	// Soal milik (standard_no, revision): saat procedure naik revisi, soal revisi
+	// lama tetap tersimpan; soal revisi baru disiapkan terpisah. (quiz_design §12b)
+	revision: varchar("revision", { length: 10 }),
 	nmdoc: varchar("nmdoc", { length: 100 }),
 	question: text("question").notNull(),
 	optionA: varchar("option_a", { length: 500 }).notNull(),
@@ -244,6 +247,7 @@ export const quizQuestion = mysqlTable("quiz_question", {
 (table) => [
 	primaryKey({ columns: [table.no], name: "quiz_question_no" }),
 	index("idx_qq_standard").on(table.standardNo),
+	index("idx_qq_std_rev").on(table.standardNo, table.revision),
 ]);
 
 // Attempt = sekaligus log/history quiz. nmdoc/title/revision = SNAPSHOT BEKU
