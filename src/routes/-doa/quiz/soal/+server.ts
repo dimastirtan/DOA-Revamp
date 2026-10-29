@@ -33,7 +33,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 			const doc = await db.query.standard.findFirst({
 				where: and(
-					inArray(standard.type, ['pro']),
+					inArray(standard.type, ['pro', 'pro2']),
 					eq(standard.no, standardNo),
 					ne(standard.remark, 'D')
 				)
@@ -115,7 +115,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		const offset = (page - 1) * limit;
 
 		const baseWhere = and(
-			inArray(standard.type, ['pro']),
+			inArray(standard.type, ['pro', 'pro2']),
 			ne(standard.remark, 'D'),
 			search
 				? or(like(standard.number, `%${search}%`), like(standard.title, `%${search}%`))
@@ -188,7 +188,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		const doc = await db.query.standard.findFirst({
 			where: and(
-				inArray(standard.type, ['pro']),
+				inArray(standard.type, ['pro', 'pro2']),
 				eq(standard.no, standardNo),
 				ne(standard.remark, 'D')
 			)
